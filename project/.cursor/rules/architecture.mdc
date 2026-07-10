@@ -1,0 +1,14 @@
+---
+description: 本仓库应用架构与数据访问约束
+alwaysApply: true
+---
+
+# 应用架构
+
+- Server Components 优先；Server Actions 优先于 API 路由（Webhook/Cron 除外）。
+- Server Action 禁止接收 `userId`；第一行强制 session 鉴权。
+- RLS + 应用层 `user_id` 双重过滤。
+- AI 成功后再写 `usage_tracking`；失败不扣配额。
+- 禁止缓存用户数据（`/app/*`、events、topics、performance、usage 等）。
+- 需要套餐的页面与 Server Action 统一走 `requirePlanContext()`；纯鉴权用 `getAuthenticatedUser()`；底层 `getAuthenticatedAppSession()` + `getUserProfile`（`cache`）。禁止页面层重复查库。
+- 优先纯函数进 `lib/`，Client 组件只保留交互与状态。

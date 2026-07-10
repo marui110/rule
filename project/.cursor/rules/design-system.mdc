@@ -1,0 +1,11 @@
+---
+description: 设计 token 与 UI 交互规范（对照 app/globals.css）
+globs: app/**/*.tsx, components/**/*.tsx, app/globals.css
+alwaysApply: false
+---
+
+# 设计系统
+
+- 字体：系统 sans + 系统 mono；导航激活色 `#e54646`。
+- 配色：珊瑚红 `#E54646` / `#FF6B6B`（`accent` / `accent-secondary`）+ zinc 中性底；`destructive` 用 `#EF4444`，不与品牌色混用。
+- 菜单/下拉 hover 用 `muted`，不用 `accent`。

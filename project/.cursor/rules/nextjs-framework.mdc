@@ -1,0 +1,11 @@
+---
+description: Next.js 16 框架注意事项 — 与训练数据可能不一致
+globs: app/**/*, lib/**/*, components/**/*, proxy.ts, next.config.ts
+alwaysApply: false
+---
+
+# Next.js 框架
+
+This is NOT the Next.js you know. This version has breaking changes — APIs, conventions, and file structure may all differ from your training data.
+
+写代码前读 `node_modules/next/dist/docs/` 中相关指南，注意 deprecation 提示。

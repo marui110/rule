@@ -1,0 +1,13 @@
+---
+description: 本仓库标准验证命令
+alwaysApply: true
+---
+
+# 验证
+
+完成前必须跑通：
+
+- `npm run lint`
+- `npm run build`
+
+涉及 `/app/*` 页面时，可用 `playwright-skill` 做浏览器冒烟（dev 需 `DEV_AUTH_BYPASS=true`）。
