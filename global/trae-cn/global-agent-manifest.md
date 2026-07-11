@@ -14,16 +14,30 @@ alwaysApply: true
 | **Codex** | `~/.codex/AGENTS.md`（指向下方） | `<repo>/AGENTS.md` |
 | **Trae CN** | `~/.trae-cn/skills/` + 读 `~/.cursor/rules/` | `<repo>/AGENTS.md` |
 
-## Skill 路径（canonical：`~/.claude/skills/`）
+## Skill 路径
+
+| 角色 | 路径 |
+|------|------|
+| **codeskill 权威源** | `~/Documents/code/skill/codeskill/<name>/` |
+| **运行时 canonical** | `~/.claude/skills/<name>/` |
 
 | Agent | 读取路径 |
 |-------|----------|
-| **Cursor** | `~/.claude/skills/<name>/SKILL.md` |
+| **Cursor** | `~/.cursor/skills/`、`~/.claude/skills/`、`~/.agents/skills/` |
 | **Claude Code** | `~/.claude/skills/<name>/SKILL.md` |
-| **Codex** | `~/.agents/skills/<name>/SKILL.md` |
+| **Codex** | `~/.codex/skills/`、`~/.agents/skills/` |
+| **WorkBuddy** | `~/.workbuddy/skills/` |
 | **Trae CN** | `~/.trae-cn/skills/<name>/SKILL.md` |
+| **CodeBuddy** | `~/.codebuddy/skills/` |
 
-安装/同步：运行 `~/.agents/sync-global-skills.sh`
+安装/同步：
+
+```bash
+~/Documents/code/rule/sync-global-agent-standards.sh   # codeskill + skills + rules + agents
+~/Documents/code/rule/sync-global-commands.sh          # slash 命令
+```
+
+仓库备份：`~/Documents/code/skill/codeskill/`（codeskill 权威源）
 
 ## 本项目沉淀的规范 Skill
 
@@ -33,9 +47,11 @@ alwaysApply: true
 | `shadcn-app-components` | 组件三层 + 模板 |
 | `framer-motion-patterns` | lib/motion.ts 动效 |
 | `nextjs-saas-feature-scaffold` | 新 feature 脚手架 |
+| `evolve-skills` | 全局 skill 自进化（纠正 / 踩坑写回） |
 
 ## 全局规则清单
 
+- `global-skills-evolution.mdc` — Skills 自进化权威源与同步
 - `global-agent-workflow.mdc` — 工作流 + skill 路由
 - `global-nextjs-saas-architecture.mdc` — 架构约束
 - `global-security-baseline.mdc` — 安全基线

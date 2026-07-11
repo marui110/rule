@@ -26,7 +26,7 @@ alwaysApply: true
 | 本机全局 | `~/.agents/skills/` | 同步安装；`npx skills add <owner/repo> -g -y -a cursor` |
 | Cursor 内置 | `~/.cursor/skills-cursor/` | 系统管理；**禁止**手动写入 |
 
-**meta / superpowers**：`using-superpowers`、`using-agent-skills`、`find-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`。
+**meta / superpowers**：`using-superpowers`、`using-agent-skills`、`evolve-skills`、`find-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`。
 
 **工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`debugging-and-error-recovery`、`frontend-ui-engineering`、`frontend-design`、`api-and-interface-design`、`code-review-and-quality`、`code-review-skill`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`。
 
@@ -43,6 +43,7 @@ alwaysApply: true
 | 场景 | 技能 |
 |------|------|
 | 会话启动、查找 skill | `using-superpowers` → `using-agent-skills` |
+| 纠正 / 踩坑写回 skill | `evolve-skills` → 跑 `sync-global-agent-standards.sh` |
 | 需求尚不清晰 | `interview-me` |
 | 概念发散 / 收敛 | `idea-refine` |
 | 新功能 / 大改前探索 | `brainstorming` |

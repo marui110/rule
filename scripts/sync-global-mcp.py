@@ -1,0 +1,332 @@
+#!/usr/bin/env python3
+"""Sync MCP servers from canonical config to Cursor, Trae CN, Claude Code, Codex, WorkBuddy."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Any
+
+HOME = Path(os.environ.get("HOME", str(Path.home())))
+RULE_REPO = Path(__file__).resolve().parent.parent
+CANONICAL_PATH = RULE_REPO / "mcp" / "canonical.json"
+
+CURSOR_MCP = HOME / ".cursor" / "mcp.json"
+TRAE_MCP = HOME / "Library/Application Support/Trae CN/User/mcp.json"
+CLAUDE_JSON = HOME / ".claude.json"
+CODEX_CONFIG = HOME / ".codex" / "config.toml"
+WORKBUDDY_MCP = HOME / ".workbuddy" / ".mcp.json"
+
+IMPORT_SOURCES = {
+    "cursor": CURSOR_MCP,
+    "trae": TRAE_MCP,
+}
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def save_json(path: Path, data: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(data, handle, indent=2, ensure_ascii=False)
+        handle.write("\n")
+
+
+def normalize_server(name: str, server: dict[str, Any]) -> dict[str, Any]:
+    if server.get("url") and not server.get("command"):
+        normalized: dict[str, Any] = {
+            "transport": "http",
+            "url": server["url"],
+        }
+        if server.get("headers"):
+            normalized["headers"] = server["headers"]
+        if server.get("env"):
+            normalized["env"] = server["env"]
+        return normalized
+
+    command = server.get("command")
+    args = server.get("args") or []
+    if command == "npx" and len(args) >= 2 and args[0] == "mcp-remote":
+        normalized = {
+            "transport": "http",
+            "url": args[1],
+        }
+        if server.get("env"):
+            normalized["env"] = server["env"]
+        return normalized
+
+    if command:
+        normalized = {
+            "transport": "stdio",
+            "command": command,
+            "args": args,
+        }
+        if server.get("env"):
+            normalized["env"] = server["env"]
+        return normalized
+
+    raise ValueError(f"Unsupported MCP server shape for '{name}': {server}")
+
+
+def normalize_document(data: dict[str, Any]) -> dict[str, Any]:
+    servers = data.get("mcpServers") or {}
+    normalized_servers = {
+        name: normalize_server(name, server)
+        for name, server in servers.items()
+    }
+    return {
+        "version": data.get("version", 1),
+        "options": data.get("options", {}),
+        "mcpServers": normalized_servers,
+    }
+
+
+def merge_canonical(existing: dict[str, Any], incoming: dict[str, Any]) -> dict[str, Any]:
+    merged = {
+        "version": existing.get("version", incoming.get("version", 1)),
+        "options": {**existing.get("options", {}), **incoming.get("options", {})},
+        "mcpServers": {**existing.get("mcpServers", {}), **incoming.get("mcpServers", {})},
+    }
+    return merged
+
+
+def import_sources() -> dict[str, Any]:
+    canonical = load_json(CANONICAL_PATH)
+    if not canonical:
+        canonical = {"version": 1, "options": {}, "mcpServers": {}}
+
+    imported = 0
+    for label, path in IMPORT_SOURCES.items():
+        if not path.exists():
+            print(f"import: skip {label} (missing {path})")
+            continue
+        payload = load_json(path)
+        servers = payload.get("mcpServers") or {}
+        if not servers:
+            print(f"import: skip {label} (empty mcpServers)")
+            continue
+        normalized = normalize_document({"mcpServers": servers})
+        canonical = merge_canonical(canonical, normalized)
+        imported += len(normalized["mcpServers"])
+        print(f"import: merged {len(normalized['mcpServers'])} server(s) from {label}")
+
+    if imported == 0:
+        print("import: no servers found in cursor/trae sources")
+    save_json(CANONICAL_PATH, canonical)
+    return canonical
+
+
+def to_cursor(server: dict[str, Any]) -> dict[str, Any]:
+    if server["transport"] == "http":
+        payload: dict[str, Any] = {"url": server["url"]}
+    else:
+        payload = {
+            "command": server["command"],
+            "args": server.get("args", []),
+        }
+    if server.get("env"):
+        payload["env"] = server["env"]
+    return payload
+
+
+def to_trae(server: dict[str, Any], options: dict[str, Any]) -> dict[str, Any]:
+    trae_opts = options.get("trae", {})
+    if server["transport"] == "http" and trae_opts.get("httpViaMcpRemote", True):
+        payload: dict[str, Any] = {
+            "command": "npx",
+            "args": ["mcp-remote", server["url"]],
+        }
+    elif server["transport"] == "http":
+        payload = {"url": server["url"]}
+    else:
+        payload = {
+            "command": server["command"],
+            "args": server.get("args", []),
+        }
+    if server.get("env"):
+        payload["env"] = server["env"]
+    return payload
+
+
+def to_claude(server: dict[str, Any]) -> dict[str, Any]:
+    if server["transport"] == "http":
+        payload: dict[str, Any] = {
+            "type": "http",
+            "url": server["url"],
+        }
+    else:
+        payload = {
+            "type": "stdio",
+            "command": server["command"],
+            "args": server.get("args", []),
+        }
+    if server.get("env"):
+        payload["env"] = server["env"]
+    return payload
+
+
+def to_workbuddy(server: dict[str, Any]) -> dict[str, Any]:
+    if server["transport"] == "http":
+        payload: dict[str, Any] = {
+            "type": "http",
+            "url": server["url"],
+        }
+    else:
+        payload = {
+            "type": "stdio",
+            "command": server["command"],
+            "args": server.get("args", []),
+        }
+    if server.get("env"):
+        payload["env"] = server["env"]
+    return payload
+
+
+def deploy_cursor(servers: dict[str, Any], options: dict[str, Any]) -> None:
+    payload = {
+        "mcpServers": {
+            name: to_cursor(server)
+            for name, server in servers.items()
+        }
+    }
+    save_json(CURSOR_MCP, payload)
+    print(f"deploy: cursor -> {CURSOR_MCP} ({len(payload['mcpServers'])} server(s))")
+
+
+def deploy_trae(servers: dict[str, Any], options: dict[str, Any]) -> None:
+    payload = {
+        "mcpServers": {
+            name: to_trae(server, options)
+            for name, server in servers.items()
+        }
+    }
+    save_json(TRAE_MCP, payload)
+    print(f"deploy: trae-cn -> {TRAE_MCP} ({len(payload['mcpServers'])} server(s))")
+
+
+def deploy_claude(servers: dict[str, Any]) -> None:
+    if not CLAUDE_JSON.exists():
+        print(f"deploy: skip claude (missing {CLAUDE_JSON})")
+        return
+
+    config = load_json(CLAUDE_JSON)
+    config["mcpServers"] = {
+        name: to_claude(server)
+        for name, server in servers.items()
+    }
+    save_json(CLAUDE_JSON, config)
+    print(f"deploy: claude -> {CLAUDE_JSON} ({len(config['mcpServers'])} server(s))")
+
+
+def deploy_workbuddy(servers: dict[str, Any], options: dict[str, Any]) -> None:
+    existing = load_json(WORKBUDDY_MCP) if WORKBUDDY_MCP.exists() else {"mcpServers": {}}
+    preserve = set(options.get("workbuddy", {}).get("preserveServers", ["connector-proxy"]))
+    preserved = {
+        name: server
+        for name, server in (existing.get("mcpServers") or {}).items()
+        if name in preserve
+    }
+    merged = {
+        **preserved,
+        **{
+            name: to_workbuddy(server)
+            for name, server in servers.items()
+        },
+    }
+    save_json(WORKBUDDY_MCP, {"mcpServers": merged})
+    print(f"deploy: workbuddy -> {WORKBUDDY_MCP} ({len(merged)} server(s), preserved {len(preserved)})")
+
+
+def render_codex_toml_block(name: str, server: dict[str, Any]) -> str:
+    lines = [f"[mcp_servers.{name}]"]
+    if server["transport"] == "http":
+        lines.append('type = "http"')
+        lines.append(f'url = "{server["url"]}"')
+    else:
+        lines.append(f'command = "{server["command"]}"')
+        args = server.get("args", [])
+        args_literal = ", ".join(json.dumps(arg) for arg in args)
+        lines.append(f"args = [{args_literal}]")
+    if server.get("env"):
+        for key, value in server["env"].items():
+            lines.append(f'env.{key} = "{value}"')
+    return "\n".join(lines)
+
+
+def strip_codex_mcp_sections(text: str) -> str:
+    lines = text.splitlines()
+    kept: list[str] = []
+    skipping = False
+    for line in lines:
+        if re.match(r"^\[mcp_servers\.", line):
+            skipping = True
+            continue
+        if skipping:
+            if re.match(r"^\[", line):
+                skipping = False
+                kept.append(line)
+            continue
+        kept.append(line)
+    return "\n".join(kept).rstrip() + "\n"
+
+
+def deploy_codex(servers: dict[str, Any]) -> None:
+    if not CODEX_CONFIG.exists():
+        print(f"deploy: skip codex (missing {CODEX_CONFIG})")
+        return
+
+    base = CODEX_CONFIG.read_text(encoding="utf-8")
+    base = strip_codex_mcp_sections(base)
+    blocks = [render_codex_toml_block(name, server) for name, server in servers.items()]
+    updated = base.rstrip() + "\n\n" + "\n\n".join(blocks) + "\n"
+    CODEX_CONFIG.write_text(updated, encoding="utf-8")
+    print(f"deploy: codex -> {CODEX_CONFIG} ({len(servers)} server(s))")
+
+
+def deploy_all(canonical: dict[str, Any]) -> None:
+    servers = canonical.get("mcpServers") or {}
+    options = canonical.get("options") or {}
+    if not servers:
+        print("deploy: no servers in canonical config")
+        return
+
+    deploy_cursor(servers, options)
+    deploy_trae(servers, options)
+    deploy_claude(servers)
+    deploy_codex(servers)
+    deploy_workbuddy(servers, options)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--import",
+        dest="do_import",
+        action="store_true",
+        help="Merge MCP servers from Cursor and Trae CN into mcp/canonical.json before deploy",
+    )
+    args = parser.parse_args()
+
+    if args.do_import:
+        canonical = import_sources()
+    else:
+        canonical = load_json(CANONICAL_PATH)
+        if not canonical.get("mcpServers"):
+            print(f"warning: {CANONICAL_PATH} is empty; run with --import first", file=sys.stderr)
+
+    deploy_all(canonical)
+    print(f"Done. Canonical MCP config: {CANONICAL_PATH}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

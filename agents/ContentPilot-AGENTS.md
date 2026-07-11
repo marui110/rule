@@ -6,4 +6,4 @@
 | 全局 Skills | `preview-first-sync`、`shadcn-app-components`、`framer-motion-patterns`、`nextjs-saas-feature-scaffold` |
 | 本项目 | `.cursor/rules/*.mdc` |
 
-本地规则优先于全局。同步 Skills：`~/.agents/sync-global-agent-standards.sh`
+本地规则优先于全局。同步：`~/Documents/code/rule/sync-global-agent-standards.sh`

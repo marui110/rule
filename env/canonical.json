@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "python": {
+    "condaBase": "/opt/homebrew/Caskroom/miniconda/base",
+    "interpreter": "/opt/homebrew/Caskroom/miniconda/base/bin/python3.14",
+    "binDir": "/opt/homebrew/Caskroom/miniconda/base/bin",
+    "condaBinDir": "/opt/homebrew/Caskroom/miniconda/base/condabin"
+  },
+  "node": {
+    "binary": "/opt/homebrew/bin/node",
+    "binDir": "/opt/homebrew/bin"
+  },
+  "path": "/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "terminalEnvOsx": {
+    "PATH": "/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "HTTP_PROXY": "http://127.0.0.1:1087",
+    "HTTPS_PROXY": "http://127.0.0.1:1087",
+    "ALL_PROXY": "socks5://127.0.0.1:1080",
+    "http_proxy": "http://127.0.0.1:1087",
+    "https_proxy": "http://127.0.0.1:1087",
+    "all_proxy": "socks5://127.0.0.1:1080",
+    "NO_PROXY": "localhost,127.0.0.1,.supabase.co,pooler.supabase.com",
+    "no_proxy": "localhost,127.0.0.1,.supabase.co,pooler.supabase.com"
+  },
+  "vscodeKeys": {
+    "python.defaultInterpreterPath": "/opt/homebrew/Caskroom/miniconda/base/bin/python3.14",
+    "typescript.tsserver.nodePath": "/opt/homebrew/bin/node"
+  }
+}

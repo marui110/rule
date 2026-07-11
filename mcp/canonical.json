@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "options": {
+    "trae": {
+      "httpViaMcpRemote": true
+    },
+    "workbuddy": {
+      "preserveServers": [
+        "connector-proxy"
+      ]
+    }
+  },
+  "mcpServers": {
+    "vercel": {
+      "transport": "http",
+      "url": "https://mcp.vercel.com"
+    },
+    "mastergo": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@mastergo/vibe-mcp",
+        "--url=http://localhost:50678"
+      ]
+    }
+  }
+}
