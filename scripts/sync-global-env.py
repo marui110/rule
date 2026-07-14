@@ -15,10 +15,6 @@ CANONICAL_PATH = RULE_REPO / "env" / "canonical.json"
 
 CURSOR_SETTINGS = HOME / "Library/Application Support/Cursor/User/settings.json"
 TRAE_SETTINGS = HOME / "Library/Application Support/Trae CN/User/settings.json"
-WORKBUDDY_SETTINGS = HOME / ".workbuddy/settings.json"
-WORKBUDDY_USER_SETTINGS = (
-    HOME / "Library/Application Support/@genie/workbuddy-desktop/User/settings.json"
-)
 CLAUDE_SETTINGS = HOME / ".claude/settings.json"
 CODEX_CONFIG = HOME / ".codex/config.toml"
 ZPROFILE = HOME / ".zprofile"
@@ -84,22 +80,19 @@ def deep_merge(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
 
 def deploy_vscode_settings(path: Path, canonical: dict[str, Any], label: str) -> None:
     settings = load_json(path)
-    patch = {
-        "terminal.integrated.env.osx": canonical["terminalEnvOsx"],
-        **canonical["vscodeKeys"],
-    }
-    updated = deep_merge(settings, patch)
-    save_json(path, updated)
+    settings["terminal.integrated.env.osx"] = dict(canonical["terminalEnvOsx"])
+    settings.update(canonical["vscodeKeys"])
+    save_json(path, settings)
     print(f"deploy: {label} -> {path}")
 
 
 def deploy_claude(canonical: dict[str, Any]) -> None:
     settings = load_json(CLAUDE_SETTINGS)
     env = settings.get("env", {})
-    env["PATH"] = canonical["path"]
+    env.update(canonical.get("claudeEnv", {"PATH": canonical["path"]}))
     settings["env"] = env
     save_json(CLAUDE_SETTINGS, settings)
-    print(f"deploy: claude -> {CLAUDE_SETTINGS} (PATH)")
+    print(f"deploy: claude -> {CLAUDE_SETTINGS} (toolchain env)")
 
 
 def strip_shell_environment_policy(text: str) -> str:
@@ -125,11 +118,13 @@ def deploy_codex(canonical: dict[str, Any]) -> None:
         return
 
     base = strip_shell_environment_policy(CODEX_CONFIG.read_text(encoding="utf-8"))
+    conda_prefix = canonical["python"]["condaBase"]
     block = (
         "[shell_environment_policy]\n"
         'inherit = "core"\n'
         "experimental_use_profile = true\n"
-        f'set = {{ PATH = "{canonical["path"]}" }}\n'
+        f'set = {{ PATH = "{canonical["path"]}", CONDA_DEFAULT_ENV = "base", '
+        f'CONDA_PREFIX = "{conda_prefix}" }}\n'
     )
     CODEX_CONFIG.write_text(base.rstrip() + "\n\n" + block, encoding="utf-8")
     print(f"deploy: codex -> {CODEX_CONFIG} (shell_environment_policy)")
@@ -161,8 +156,6 @@ def main() -> int:
 
     deploy_vscode_settings(CURSOR_SETTINGS, canonical, "cursor")
     deploy_vscode_settings(TRAE_SETTINGS, canonical, "trae-cn")
-    deploy_vscode_settings(WORKBUDDY_SETTINGS, canonical, "workbuddy")
-    deploy_vscode_settings(WORKBUDDY_USER_SETTINGS, canonical, "workbuddy-user")
     deploy_claude(canonical)
     deploy_codex(canonical)
     deploy_zprofile(canonical)

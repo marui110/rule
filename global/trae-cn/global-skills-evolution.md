@@ -13,7 +13,7 @@ alwaysApply: true
 | 其余全局 skill | `~/.claude/skills/<name>/` |
 | 规则（唯一可写） | `~/.cursor/rules/global-*.mdc` |
 
-各 Agent 通过 symlink 读取 Skills，**不要**直接改 `~/.codex/skills`、`~/.workbuddy/skills`、`~/.trae-cn/skills`、`~/.agents/skills`、`~/.cursor/skills`、`~/.codebuddy/skills`。
+各 Agent 通过 symlink 读取 Skills，**不要**直接改 `~/.codex/skills`、`~/.trae-cn/skills`、`~/.agents/skills`、`~/.cursor/skills`。
 
 ## 何时进化
 

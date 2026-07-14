@@ -22,23 +22,18 @@ SKILL_TARGETS=(
   "${HOME}/.cursor/skills"
   "${HOME}/.trae-cn/skills"
   "${HOME}/.codex/skills"
-  "${HOME}/.codebuddy/skills"
-  "${HOME}/.workbuddy/skills"
 )
 
 RULE_AGENT_TARGETS=(
   "${HOME}/.trae-cn/rules"
-  "${HOME}/.codebuddy/rules"
 )
 
 RULE_REPO_CURSOR="${RULE_REPO}/global/cursor"
 RULE_REPO_TRAE="${RULE_REPO}/global/trae-cn"
-RULE_REPO_CODEBUDDY="${RULE_REPO}/global/codebuddy"
 AGENTS_REPO="${RULE_REPO}/agents"
 
 AGENT_DEPLOYS=(
   "codex-AGENTS.md:${HOME}/.codex/AGENTS.md"
-  "workbuddy-AGENTS.md:${HOME}/.workbuddy/AGENTS.md"
 )
 
 link_skill() {
@@ -148,7 +143,7 @@ sync_rules_to_agents() {
 sync_rules_to_repo() {
   collect_global_rules
 
-  mkdir -p "$RULE_REPO_CURSOR" "$RULE_REPO_TRAE" "$RULE_REPO_CODEBUDDY"
+  mkdir -p "$RULE_REPO_CURSOR" "$RULE_REPO_TRAE"
 
   local copied=0
   for rule in "${GLOBAL_RULES[@]}"; do
@@ -156,7 +151,6 @@ sync_rules_to_repo() {
     base="$(basename "$rule" .mdc)"
     cp "$rule" "${RULE_REPO_CURSOR}/${base}.mdc"
     cp "$rule" "${RULE_REPO_TRAE}/${base}.md"
-    cp "$rule" "${RULE_REPO_CODEBUDDY}/${base}.md"
     copied=$((copied + 1))
   done
 

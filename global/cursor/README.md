@@ -48,10 +48,8 @@
 |-------|------|--------|
 | Cursor | `~/.cursor/rules/global-*.mdc` | `~/.cursor/skills/`、`~/.claude/skills/` |
 | Claude Code | 同上 | `~/.claude/skills/` |
-| Codex | `~/.codex/AGENTS.md` + `~/.codebuddy/rules/` | `~/.codex/skills/` |
+| Codex | `~/.codex/AGENTS.md` | `~/.codex/skills/` |
 | Trae CN | `~/.trae-cn/rules/global-*.md` | `~/.trae-cn/skills/` |
-| WorkBuddy | `~/.workbuddy/AGENTS.md` + `~/.codebuddy/rules/` | `~/.workbuddy/skills/` |
-| CodeBuddy CLI | `~/.codebuddy/rules/` | `~/.codebuddy/skills/` |
 
 MCP 同步：`~/Documents/code/rule/sync-global-mcp.sh --import`（详见 `~/Documents/code/rule/mcp/README.md`）。
 

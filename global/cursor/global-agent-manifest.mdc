@@ -26,9 +26,7 @@ alwaysApply: true
 | **Cursor** | `~/.cursor/skills/`、`~/.claude/skills/`、`~/.agents/skills/` |
 | **Claude Code** | `~/.claude/skills/<name>/SKILL.md` |
 | **Codex** | `~/.codex/skills/`、`~/.agents/skills/` |
-| **WorkBuddy** | `~/.workbuddy/skills/` |
 | **Trae CN** | `~/.trae-cn/skills/<name>/SKILL.md` |
-| **CodeBuddy** | `~/.codebuddy/skills/` |
 
 安装/同步：
 

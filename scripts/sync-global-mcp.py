@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sync MCP servers from canonical config to Cursor, Trae CN, Claude Code, Codex, WorkBuddy."""
+"""Sync MCP servers from canonical config to Cursor, Trae CN, Claude Code, Codex."""
 
 from __future__ import annotations
 
@@ -19,7 +19,6 @@ CURSOR_MCP = HOME / ".cursor" / "mcp.json"
 TRAE_MCP = HOME / "Library/Application Support/Trae CN/User/mcp.json"
 CLAUDE_JSON = HOME / ".claude.json"
 CODEX_CONFIG = HOME / ".codex" / "config.toml"
-WORKBUDDY_MCP = HOME / ".workbuddy" / ".mcp.json"
 
 IMPORT_SOURCES = {
     "cursor": CURSOR_MCP,
@@ -174,23 +173,6 @@ def to_claude(server: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
-def to_workbuddy(server: dict[str, Any]) -> dict[str, Any]:
-    if server["transport"] == "http":
-        payload: dict[str, Any] = {
-            "type": "http",
-            "url": server["url"],
-        }
-    else:
-        payload = {
-            "type": "stdio",
-            "command": server["command"],
-            "args": server.get("args", []),
-        }
-    if server.get("env"):
-        payload["env"] = server["env"]
-    return payload
-
-
 def deploy_cursor(servers: dict[str, Any], options: dict[str, Any]) -> None:
     payload = {
         "mcpServers": {
@@ -225,25 +207,6 @@ def deploy_claude(servers: dict[str, Any]) -> None:
     }
     save_json(CLAUDE_JSON, config)
     print(f"deploy: claude -> {CLAUDE_JSON} ({len(config['mcpServers'])} server(s))")
-
-
-def deploy_workbuddy(servers: dict[str, Any], options: dict[str, Any]) -> None:
-    existing = load_json(WORKBUDDY_MCP) if WORKBUDDY_MCP.exists() else {"mcpServers": {}}
-    preserve = set(options.get("workbuddy", {}).get("preserveServers", ["connector-proxy"]))
-    preserved = {
-        name: server
-        for name, server in (existing.get("mcpServers") or {}).items()
-        if name in preserve
-    }
-    merged = {
-        **preserved,
-        **{
-            name: to_workbuddy(server)
-            for name, server in servers.items()
-        },
-    }
-    save_json(WORKBUDDY_MCP, {"mcpServers": merged})
-    print(f"deploy: workbuddy -> {WORKBUDDY_MCP} ({len(merged)} server(s), preserved {len(preserved)})")
 
 
 def render_codex_toml_block(name: str, server: dict[str, Any]) -> str:
@@ -303,7 +266,6 @@ def deploy_all(canonical: dict[str, Any]) -> None:
     deploy_trae(servers, options)
     deploy_claude(servers)
     deploy_codex(servers)
-    deploy_workbuddy(servers, options)
 
 
 def main() -> int:

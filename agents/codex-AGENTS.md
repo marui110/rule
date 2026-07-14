@@ -1,6 +1,6 @@
 # Global Agent Standards
 
-规则：`~/.codebuddy/rules/global-*.md`（与 `~/.trae-cn/rules/` 同步）
+规则：`~/.trae-cn/rules/global-*.md`（与 `~/.cursor/rules/global-*.mdc` 同步）
 Skills：`~/.codex/skills/`（链接至 `~/.claude/skills/`；镜像：`~/.agents/skills/`）
 
 项目本地：`AGENTS.md`、`.cursor/rules/`、`.trae/rules/` 优先于全局。

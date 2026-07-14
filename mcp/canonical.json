@@ -3,17 +3,16 @@
   "options": {
     "trae": {
       "httpViaMcpRemote": true
-    },
-    "workbuddy": {
-      "preserveServers": [
-        "connector-proxy"
-      ]
     }
   },
   "mcpServers": {
     "vercel": {
       "transport": "http",
       "url": "https://mcp.vercel.com"
+    },
+    "supabase": {
+      "transport": "http",
+      "url": "https://mcp.supabase.com/mcp"
     },
     "mastergo": {
       "transport": "stdio",

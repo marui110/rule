@@ -5,9 +5,9 @@
 | 全局（跨项目） | `~/.cursor/rules/global-*.mdc`（见 `global-agent-manifest.mdc`） |
 | 全局 Skills（运行时） | `~/.claude/skills/` |
 | codeskill 权威源 | `~/Documents/code/skill/codeskill/`（含 `evolve-skills`） |
-| 规则镜像（本仓库） | `global/cursor/`、`global/trae-cn/`、`global/codebuddy/` |
+| 规则镜像（本仓库） | `global/cursor/`、`global/trae-cn/` |
 | Slash 命令（本仓库） | `commands/*.md` → `~/.cursor/commands`、`~/.claude/commands` |
-| Agent 模板 | `agents/*.md` → 部署至 `~/.codex/`、`~/.workbuddy/` 等 |
+| Agent 模板 | `agents/*.md` → 部署至 `~/.codex/` 等 |
 | 本项目 | `project/.cursor/rules/*.mdc` |
 
 本地规则优先于全局。
@@ -26,7 +26,7 @@
 ~/Documents/code/rule/sync-global-commands.sh
 ```
 
-**同步 MCP（Cursor / Trae CN → Claude / Codex / WorkBuddy）：**
+**同步 MCP（Cursor / Trae CN → Claude / Codex）：**
 
 ```bash
 ~/Documents/code/rule/sync-global-mcp.sh --import   # 先从 Cursor/Trae 导入再部署

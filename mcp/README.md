@@ -18,7 +18,6 @@
 | Trae CN | `~/Library/Application Support/Trae CN/User/mcp.json` | HTTP 默认经 `npx mcp-remote <url>` |
 | Claude Code | `~/.claude.json` → `mcpServers` | `{ "type": "http\|stdio", ... }` |
 | Codex | `~/.codex/config.toml` → `[mcp_servers.*]` | TOML，HTTP / stdio |
-| WorkBuddy | `~/.workbuddy/.mcp.json` | 保留 `connector-proxy`，合并用户 MCP |
 
 ## 用法
 
@@ -64,4 +63,3 @@
 
 - Claude Code 的 MCP **必须**写在 `~/.claude.json`，写在 `~/.claude/settings.json` 无效
 - Codex OAuth 类 MCP（如 Vercel）需在 Codex 内单独登录一次
-- WorkBuddy 内置 connector 市场与标准 MCP 并存，脚本不会删除 `connector-proxy`

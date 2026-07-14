@@ -8,6 +8,8 @@
 | Node.js | Homebrew：`/opt/homebrew/bin/node` |
 | PATH | miniconda/base → homebrew → 系统路径 |
 
+`terminal.integrated.env.osx` 仅同步 PATH，不写入代理变量。
+
 配置源：`env/canonical.json`
 
 ## 部署目标
@@ -16,7 +18,6 @@
 |-------|----------|
 | Cursor | `~/Library/Application Support/Cursor/User/settings.json` |
 | Trae CN | `~/Library/Application Support/Trae CN/User/settings.json` |
-| WorkBuddy | `~/.workbuddy/settings.json` + App Support User settings |
 | Claude Code | `~/.claude/settings.json` → `env.PATH` |
 | Codex | `~/.codex/config.toml` → `[shell_environment_policy]` |
 | Login shell | `~/.zprofile` |
