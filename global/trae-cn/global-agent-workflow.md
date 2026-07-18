@@ -26,7 +26,7 @@ alwaysApply: true
 | 本机全局 | `~/.agents/skills/` | 同步安装；`npx skills add <owner/repo> -g -y -a cursor` |
 | Cursor 内置 | `~/.cursor/skills-cursor/` | 系统管理；**禁止**手动写入 |
 
-**meta / superpowers**：`using-superpowers`、`using-agent-skills`、`evolve-skills`、`find-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`。
+**meta**：`using-agent-skills`、`evolve-skills`、`find-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`。
 
 **工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`debugging-and-error-recovery`、`frontend-ui-engineering`、`frontend-design`、`api-and-interface-design`、`code-review-and-quality`、`code-review-skill`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`。
 
@@ -42,7 +42,7 @@ alwaysApply: true
 
 | 场景 | 技能 |
 |------|------|
-| 会话启动、查找 skill | `using-superpowers` → `using-agent-skills` |
+| 会话启动、查找 skill | `using-agent-skills` |
 | 纠正 / 踩坑写回 skill | `evolve-skills` → 跑 `sync-global-agent-standards.sh` |
 | 需求尚不清晰 | `interview-me` |
 | 概念发散 / 收敛 | `idea-refine` |
@@ -86,7 +86,7 @@ alwaysApply: true
 
 **选用原则**：
 
-1. 先读 `using-superpowers`，再读 `using-agent-skills` 匹配场景。
+1. 先读 `using-agent-skills` 匹配场景。
 2. 同一轮**最多一个主流程 skill**（Phase A/B/C 或 Phase G）；审查类可末尾叠加。
 3. 全局 skill 读 `~/.claude/skills/<name>/SKILL.md`（或 `~/.agents/skills/<name>/SKILL.md`）。
 4. Cursor 内置读 `~/.cursor/skills-cursor/<name>/SKILL.md`。
@@ -94,7 +94,7 @@ alwaysApply: true
 
 ## 启动（每次会话）
 
-1. 读 `using-superpowers` 与 `using-agent-skills`。
+1. 读 `using-agent-skills`。
 2. 扫描项目本地 `AGENTS.md` / `.cursor/rules/` / README。
 3. 明确任务、验收标准与范围；有歧义时 `interview-me` 或一次性向用户确认。
 4. 判断类型：**新功能 / 修 bug** → Phase A/B/C；**架构整理 / 重构** → Phase G。
