@@ -26,15 +26,25 @@ alwaysApply: true
 | 本机全局 | `~/.agents/skills/` | 同步安装；`npx skills add <owner/repo> -g -y -a cursor` |
 | Cursor 内置 | `~/.cursor/skills-cursor/` | 系统管理；**禁止**手动写入 |
 
-**meta**：`using-agent-skills`、`evolve-skills`、`find-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`。
+完整场景表：`~/Documents/code/skill/SKILL_ROUTER.md`。全量目录：`~/Documents/code/skill/SKILLS_INDEX.md`。
 
-**工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`debugging-and-error-recovery`、`frontend-ui-engineering`、`frontend-design`、`api-and-interface-design`、`code-review-and-quality`、`code-review-skill`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`。
+**meta**：`using-agent-skills`、`evolve-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`。
 
-**视觉 / 设计**：`design-taste-frontend`、`design-taste-frontend-v1`、`high-end-visual-design`、`redesign-existing-projects`、`minimalist-ui`、`industrial-brutalist-ui`、`gpt-taste`、`brandkit`、`imagegen-frontend-web`、`imagegen-frontend-mobile`、`image-to-code`、`stitch-design-taste`、`impeccable`、`theme-factory`、`full-output-enforcement`。
+**工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`debugging-and-error-recovery`、`diagnosing-bugs`、`frontend-ui-engineering`、`frontend-design`、`api-and-interface-design`、`code-review-and-quality`、`code-review-skill`、`code-review`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`、`codebase-design`、`domain-modeling`、`improve-codebase-architecture`、`deploy-to-vercel`。
 
-**测试 / 工具 / 极简**：`playwright-skill`、`webapp-testing`、`browser-testing-with-devtools`、`web-artifacts-builder`、`ponytail`、`ponytail-review`、`ponytail-audit`、`ponytail-debt`、`ponytail-gain`、`ponytail-help`。
+**视觉 / 设计**：`ui-skills-root`（ibelick/ui-skills 路由）、`baseline-ui`、`improve-ui`、`create-design-md`、`fixing-accessibility`、`fixing-metadata`、`fixing-motion-performance`、`design-taste-frontend`、`design-taste-frontend-v1`、`high-end-visual-design`、`redesign-existing-projects`、`minimalist-ui`、`industrial-brutalist-ui`、`gpt-taste`、`brandkit`、`imagegen-frontend-web`、`imagegen-frontend-mobile`、`image-to-code`、`stitch-design-taste`、`impeccable`、`theme-factory`、`full-output-enforcement`、`apple-design`、`animate`、`improve-animations`、`find-animation-opportunities`。
 
-**SaaS 沉淀（全局，见 `global-agent-manifest`）**：`preview-first-sync`、`shadcn-app-components`、`framer-motion-patterns`、`nextjs-saas-feature-scaffold`。
+**GSAP**：`gsap-core`、`gsap-frameworks`、`gsap-performance`、`gsap-plugins`、`gsap-react`、`gsap-scrolltrigger`、`gsap-timeline`、`gsap-utils`。
+
+**Remotion**：`remotion-best-practices`、`remotion-create`、`remotion-docs`、`remotion-studio`、`remotion-render`、`remotion-captions`、`remotion-multimedia`、`remotion-maps`、`remotion-markup`、`remotion-interactivity`、`remotion-saas`、`remotion-upgrade`。
+
+**Caveman**：`caveman`、`caveman-help`、`caveman-commit`、`caveman-review`、`caveman-stats`、`caveman-compress`、`cavecrew`。
+
+**Matt / grill**：`grilling`、`grill-me`、`grill-with-docs`、`implement`、`handoff`、`ask-matt`、`teach`、`to-spec`、`to-tickets`、`triage`、`wayfinder`。
+
+**测试 / 工具 / 极简**：`playwright-skill`、`webapp-testing`、`browser-testing-with-devtools`、`web-artifacts-builder`、`ponytail`、`ponytail-review`、`ponytail-audit`、`ponytail-debt`、`ponytail-gain`、`ponytail-help`、`apple-notes`、`pptx`。
+
+**SaaS 沉淀（全局，见 `global-agent-manifest`）**：`preview-first-sync`、`shadcn-app-components`、`framer-motion-patterns`、`nextjs-saas-feature-scaffold`、`saas-tenant-membership`。
 
 **Cursor 内置**：`review-bugbot`、`review-security`、`babysit`、`split-to-prs`、`canvas`、`create-rule`、`create-skill`、`create-hook`、`create-subagent`、`automate`、`loop`、`shell`、`sdk`、`statusline`、`update-cursor-settings`、`update-cli-config`、`onboard`、`migrate-to-skills`、`review`。
 
@@ -42,7 +52,7 @@ alwaysApply: true
 
 | 场景 | 技能 |
 |------|------|
-| 会话启动、查找 skill | `using-agent-skills` |
+| 会话启动、查找 skill | `using-agent-skills` → `SKILL_ROUTER.md` |
 | 纠正 / 踩坑写回 skill | `evolve-skills` → 跑 `sync-global-agent-standards.sh` |
 | 需求尚不清晰 | `interview-me` |
 | 概念发散 / 收敛 | `idea-refine` |
@@ -57,23 +67,35 @@ alwaysApply: true
 | 加载 / 裁剪上下文 | `context-engineering` |
 | 对照官方文档实现 | `source-driven-development` |
 | 高风险决策对抗审查 | `doubt-driven-development` |
-| 行为变更 / 修 bug | `test-driven-development` |
+| 行为变更 / 修 bug | `test-driven-development`（优先于短版 `tdd`） |
 | bug / 测试失败先调查 | `systematic-debugging` 或 `debugging-and-error-recovery` |
 | 声称完成 / 提交 / PR 前验证 | `verification-before-completion` |
 | 隔离分支开发 | `using-git-worktrees` |
 | 合并 / PR 决策 | `finishing-a-development-branch` |
 | 请求 / 处理代码审查 | `requesting-code-review` / `receiving-code-review` |
-| 五轴质量审查 | `code-review-and-quality` |
-| PR / 局部审查 | `code-review-skill` |
+| 五轴质量审查（合入前） | `code-review-and-quality` |
+| since-point 双轴审查 | `code-review` |
+| PR / 多语言细则审查 | `code-review-skill` |
 | 完成后精简去重 | `code-simplification` |
 | 过度工程扫描 | `ponytail-review` / `ponytail-audit` |
 | 刻意最简实现 | `ponytail` |
 | 安全审查 | `security-and-hardening` 或 `review-security` |
 | Bug 审查（子 Agent） | `review-bugbot` |
 | 性能问题 | `performance-optimization` |
-| 新建 UI | `design-taste-frontend` / `frontend-design` |
-| 生产级 UI | `frontend-ui-engineering` |
-| 现有页面升级 | `redesign-existing-projects` → `impeccable` |
+| 架构 / 领域建模 | `codebase-design` / `domain-modeling` |
+| UI 任务入口（必做） | `ui-skills-root` 或 `npx ui-skills start`（见 `global-ui-skills`） |
+| 新建 UI | 先 ui-skills 路由，再 `design-taste-frontend`（非 `-v1`）/ `frontend-design` |
+| 生产级 UI | 先 ui-skills 路由，再 `frontend-ui-engineering` |
+| 快速去 AI 味 / 间距 | `baseline-ui` |
+| 审计现有界面 | `improve-ui` |
+| 现有页面升级 | `redesign-existing-projects` → `impeccable`（可叠加 ui-skills） |
+| GSAP / ScrollTrigger | `gsap-core` → `gsap-scrolltrigger` / `gsap-react` |
+| Remotion / 视频合成 | `remotion-best-practices` → `remotion-create` 等专项 |
+| Caveman 口语 / 压缩输出 | `caveman` / `caveman-compress` |
+| Grill 压力测试方案 | `grilling` |
+| Matt implement / handoff | `implement` / `handoff` / `ask-matt` |
+| Apple Notes | `apple-notes` |
+| 部署 Vercel | `deploy-to-vercel` |
 | 浏览器冒烟 | `playwright-skill` / `webapp-testing` |
 | API 设计 | `api-and-interface-design` |
 | 提交 / CI / 上线 | `git-workflow-and-versioning` / `ci-cd-and-automation` / `shipping-and-launch` |
@@ -86,19 +108,21 @@ alwaysApply: true
 
 **选用原则**：
 
-1. 先读 `using-agent-skills` 匹配场景。
+1. 命中意图 → **自动**读对应 `SKILL.md`（先 `SKILL_ROUTER.md` / `using-agent-skills`）。
 2. 同一轮**最多一个主流程 skill**（Phase A/B/C 或 Phase G）；审查类可末尾叠加。
-3. 全局 skill 读 `~/.claude/skills/<name>/SKILL.md`（或 `~/.agents/skills/<name>/SKILL.md`）。
+3. 全局 skill 读 `~/.claude/skills/<name>/SKILL.md`（或各端 symlink）。
 4. Cursor 内置读 `~/.cursor/skills-cursor/<name>/SKILL.md`。
 5. **Process skills 优先**：`brainstorming` / `systematic-debugging` 定方法，再叠加实现类。
 
 ## 启动（每次会话）
 
-1. 读 `using-agent-skills`。
-2. 扫描项目本地 `AGENTS.md` / `.cursor/rules/` / README。
+0. **按意图自动加载 skill**（不必等用户点名）；路由见 `~/Documents/code/skill/SKILL_ROUTER.md`。
+1. 场景不明时读 `using-agent-skills`。
+2. 扫描项目本地 `AGENTS.md` / `CLAUDE.md` / `.cursor/rules/` / README。
 3. 明确任务、验收标准与范围；有歧义时 `interview-me` 或一次性向用户确认。
-4. 判断类型：**新功能 / 修 bug** → Phase A/B/C；**架构整理 / 重构** → Phase G。
-5. 非平凡任务：先 `spec-driven-development` 或 `writing-plans`。
+4. **意图含设计/UI**：按 `global-ui-skills` **自动**跑 `npx ui-skills start`（或读 `ui-skills-root`），无需用户点名。
+5. 判断类型：**新功能 / 修 bug** → Phase A/B/C；**架构整理 / 重构** → Phase G。
+6. 非平凡任务：先 `spec-driven-development` 或 `writing-plans`。
 
 ## Phase A — 规划
 
@@ -116,7 +140,7 @@ alwaysApply: true
 1. `subagent-driven-development`（2+ 独立子任务用 `dispatching-parallel-agents`）。
 2. `incremental-implementation`：每次交付可验证的一小步。
 3. `test-driven-development`：失败测试 → 最小实现 → 全绿 → 重构。
-4. UI 子任务按需叠加 `frontend-ui-engineering` / `design-taste-frontend` / `redesign-existing-projects`。
+4. UI 子任务：**先** `ui-skills-root` / `npx ui-skills start`，再按需叠加 `frontend-ui-engineering` / `design-taste-frontend` / `redesign-existing-projects` / `baseline-ui`。
 5. 修 bug：先 `systematic-debugging`，再 TDD。
 6. GREEN 后 `code-simplification`；过度抽象叠加 `ponytail-review`。
 7. 非平凡决策 `doubt-driven-development`。

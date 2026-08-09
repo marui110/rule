@@ -32,7 +32,7 @@ alwaysApply: true
 
 - 基元用 `components/ui/`；不重复造 Button/Input/Dialog。
 - 跨页模式用 `components/shared/`；见 skill `shadcn-app-components`。
-- 新建营销页视觉方向用 `design-taste-frontend` / `impeccable`。
+- **UI 任务入口**：先 `ui-skills-root` / `npx ui-skills start`（见 `global-ui-skills`），再 `design-taste-frontend` / `impeccable` / `baseline-ui`。
 
 ## 无障碍
 

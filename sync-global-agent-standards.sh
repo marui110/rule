@@ -3,8 +3,10 @@
 # and mirror rules/agents/commands templates into this repo (Documents/code/rule).
 #
 # Skills path mapping:
-#   ~/Documents/code/skill/codeskill/*  →  ~/.claude/skills/*  →  agent symlink dirs
-#   (rule/skills/ removed; codeskill repo is the git backup for project skills)
+#   ~/Documents/code/skill/codeskill/*       →  ~/.claude/skills/*  (rsync)
+#   ~/Documents/code/skill/ui-skills/skills/* →  ~/.claude/skills/*  (symlink)
+#   ~/.claude/skills/*                       →  agent dirs (symlink)
+#   ~/.claude/skills/*                       →  ~/Documents/code/skill/global/* (rsync mirror)
 set -euo pipefail
 
 HOME="${HOME:-$HOME}"
@@ -16,6 +18,8 @@ CANONICAL_SKILLS="${HOME}/.claude/skills"
 CANONICAL_RULES="${HOME}/.cursor/rules"
 SKILL_REPO="${HOME}/Documents/code/skill"
 CODESKILL_DIR="${SKILL_REPO}/codeskill"
+UISKILLS_DIR="${SKILL_REPO}/ui-skills/skills"
+GLOBAL_MIRROR="${SKILL_REPO}/global"
 
 SKILL_TARGETS=(
   "${HOME}/.agents/skills"
@@ -32,8 +36,11 @@ RULE_REPO_CURSOR="${RULE_REPO}/global/cursor"
 RULE_REPO_TRAE="${RULE_REPO}/global/trae-cn"
 AGENTS_REPO="${RULE_REPO}/agents"
 
+# template_name:dest_path  (claude-CLAUDE.md also copied to claude.md)
 AGENT_DEPLOYS=(
   "codex-AGENTS.md:${HOME}/.codex/AGENTS.md"
+  "claude-CLAUDE.md:${HOME}/.claude/CLAUDE.md"
+  "trae-AGENTS.md:${HOME}/.trae-cn/AGENTS.md"
 )
 
 link_skill() {
@@ -71,12 +78,48 @@ sync_codeskills() {
       continue
     fi
     local dest="${CANONICAL_SKILLS}/${name}"
+    # Replace symlink with real dir before rsync
+    if [[ -L "$dest" ]]; then
+      rm "$dest"
+    fi
     mkdir -p "$dest"
     rsync -a --delete "${src}/" "${dest}/"
     synced=$((synced + 1))
   done
 
   echo "codeskills: synced ${synced} skill(s) from ${CODESKILL_DIR} -> ${CANONICAL_SKILLS}"
+}
+
+sync_uiskills() {
+  if [[ ! -d "$UISKILLS_DIR" ]]; then
+    echo "warning: missing ui-skills dir: $UISKILLS_DIR" >&2
+    return 0
+  fi
+
+  mkdir -p "$CANONICAL_SKILLS"
+
+  local linked=0
+  for src in "${UISKILLS_DIR}"/*/; do
+    [[ -d "$src" ]] || continue
+    local name
+    name="$(basename "$src")"
+    if [[ ! -f "${src}/SKILL.md" ]]; then
+      echo "warning: skip ui-skill without SKILL.md: $src" >&2
+      continue
+    fi
+    local dest="${CANONICAL_SKILLS}/${name}"
+    if [[ -L "$dest" ]]; then
+      rm "$dest"
+    elif [[ -d "$dest" ]]; then
+      rm -rf "$dest"
+    elif [[ -e "$dest" ]]; then
+      rm -f "$dest"
+    fi
+    ln -sfn "$src" "$dest"
+    linked=$((linked + 1))
+  done
+
+  echo "uiskills: linked ${linked} skill(s) from ${UISKILLS_DIR} -> ${CANONICAL_SKILLS}"
 }
 
 sync_skills() {
@@ -91,17 +134,108 @@ sync_skills() {
 
   local linked=0
   for src in "${CANONICAL_SKILLS}"/*/; do
-    [[ -d "$src" ]] || continue
+    [[ -d "$src" || -L "${src%/}" ]] || continue
     local name
     name="$(basename "$src")"
     [[ "$name" == ".system" ]] && continue
+    if [[ ! -f "${CANONICAL_SKILLS}/${name}/SKILL.md" ]]; then
+      echo "warning: skip skill without SKILL.md: $name" >&2
+      continue
+    fi
     for target in "${SKILL_TARGETS[@]}"; do
+      # Never touch Codex system skills directory contents via name collision
+      if [[ "$target" == "${HOME}/.codex/skills" && "$name" == ".system" ]]; then
+        continue
+      fi
       link_skill "$name" "$target"
     done
     linked=$((linked + 1))
   done
 
   echo "skills: linked ${linked} skill(s) to ${#SKILL_TARGETS[@]} agent directories"
+}
+
+mirror_skills_to_repo() {
+  mkdir -p "$GLOBAL_MIRROR"
+
+  local mirrored=0
+  for src in "${CANONICAL_SKILLS}"/*/; do
+    local name
+    name="$(basename "$src")"
+    [[ "$name" == ".system" ]] && continue
+    if [[ ! -f "${CANONICAL_SKILLS}/${name}/SKILL.md" ]]; then
+      continue
+    fi
+    local dest="${GLOBAL_MIRROR}/${name}"
+    mkdir -p "$dest"
+    # -L: copy through symlinks so global/ holds real files (ui-skills etc.)
+    rsync -aL --delete "${CANONICAL_SKILLS}/${name}/" "${dest}/"
+    mirrored=$((mirrored + 1))
+  done
+
+  # Drop mirror dirs that no longer exist in canonical
+  for dest in "${GLOBAL_MIRROR}"/*/; do
+    [[ -d "$dest" ]] || continue
+    local name
+    name="$(basename "$dest")"
+    if [[ ! -e "${CANONICAL_SKILLS}/${name}/SKILL.md" ]]; then
+      rm -rf "$dest"
+      echo "global: removed stale mirror ${name}"
+    fi
+  done
+
+  if [[ ! -f "${GLOBAL_MIRROR}/README.md" ]]; then
+    cat > "${GLOBAL_MIRROR}/README.md" <<'EOF'
+# global — runtime skills mirror
+
+Full copy of `~/.claude/skills` for Git backup.
+
+- **Do not edit here** as the primary source.
+- Edit `../codeskill/<name>/` for engineering skills, `../ui-skills/skills/<name>/` for UI Skills, or `~/.claude/skills/<name>/` for other globals.
+- Then run `~/Documents/code/rule/sync-global-agent-standards.sh`.
+EOF
+  fi
+
+  echo "global: mirrored ${mirrored} skill(s) -> ${GLOBAL_MIRROR}"
+}
+
+count_skills() {
+  local dir="$1"
+  local n=0
+  if [[ ! -d "$dir" ]]; then
+    echo 0
+    return
+  fi
+  for p in "${dir}"/*/; do
+    [[ -e "$p" || -L "${p%/}" ]] || continue
+    local name
+    name="$(basename "$p")"
+    [[ "$name" == ".system" ]] && continue
+    if [[ -f "${dir}/${name}/SKILL.md" ]]; then
+      n=$((n + 1))
+    fi
+  done
+  echo "$n"
+}
+
+verify_skill_counts() {
+  local canon
+  canon="$(count_skills "$CANONICAL_SKILLS")"
+  local global_n
+  global_n="$(count_skills "$GLOBAL_MIRROR")"
+  echo "verify: canonical=${canon} global=${global_n}"
+  local target
+  for target in "${SKILL_TARGETS[@]}"; do
+    local n
+    n="$(count_skills "$target")"
+    echo "verify: ${target}=${n}"
+    if [[ "$n" != "$canon" ]]; then
+      echo "warning: count mismatch for ${target} (got ${n}, want ${canon})" >&2
+    fi
+  done
+  if [[ "$global_n" != "$canon" ]]; then
+    echo "warning: global mirror count mismatch (got ${global_n}, want ${canon})" >&2
+  fi
 }
 
 collect_global_rules() {
@@ -176,6 +310,12 @@ deploy_agents_files() {
     mkdir -p "$(dirname "$dest")"
     cp "$src" "$dest"
     deployed=$((deployed + 1))
+
+    # Claude Code also reads claude.md
+    if [[ "$src_name" == "claude-CLAUDE.md" ]]; then
+      cp "$src" "${HOME}/.claude/claude.md"
+      echo "agents: also deployed claude.md"
+    fi
   done
 
   echo "agents: deployed ${deployed} template(s) from ${AGENTS_REPO}/"
@@ -183,22 +323,27 @@ deploy_agents_files() {
 
 main() {
   sync_codeskills
+  sync_uiskills
   sync_skills
+  mirror_skills_to_repo
   sync_rules_to_agents
   sync_rules_to_repo
   deploy_agents_files
+  verify_skill_counts
   if [[ -x "${RULE_REPO}/sync-global-commands.sh" ]]; then
-    "${RULE_REPO}/sync-global-commands.sh"
+    "${RULE_REPO}/sync-global-commands.sh" || echo "warning: sync-global-commands.sh failed" >&2
   fi
   if [[ -x "${RULE_REPO}/sync-global-mcp.sh" ]]; then
-    "${RULE_REPO}/sync-global-mcp.sh"
+    "${RULE_REPO}/sync-global-mcp.sh" || echo "warning: sync-global-mcp.sh failed" >&2
   fi
   if [[ -x "${RULE_REPO}/sync-global-env.sh" ]]; then
-    "${RULE_REPO}/sync-global-env.sh"
+    "${RULE_REPO}/sync-global-env.sh" || echo "warning: sync-global-env.sh failed (skills/rules already synced)" >&2
   fi
   echo "Done."
   echo "  codeskill repo   : $CODESKILL_DIR"
+  echo "  ui-skills dir    : $UISKILLS_DIR"
   echo "  skills canonical : $CANONICAL_SKILLS"
+  echo "  skills global    : $GLOBAL_MIRROR"
   echo "  rules canonical  : $CANONICAL_RULES"
   echo "  rules repo mirror: $RULE_REPO/global/"
   echo "  commands repo    : $RULE_REPO/commands/"

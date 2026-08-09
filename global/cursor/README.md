@@ -16,6 +16,7 @@
 | `global-agent-workflow.mdc` | 工作流 + skill 路由 |
 | `global-agent-manifest.mdc` | 跨 Agent 路径入口 |
 | `global-skills-evolution.mdc` | Skills 自进化权威源与同步 |
+| `global-codex-project-structure.mdc` | Codex / Agent 项目脚手架结构 |
 | `global-nextjs-saas-architecture.mdc` | Next.js SaaS 架构 |
 | `global-security-baseline.mdc` | 安全基线 |
 | `global-ui-conventions.mdc` | UI 交互规范 |
