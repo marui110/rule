@@ -14,7 +14,6 @@ RULE_REPO = Path(__file__).resolve().parent.parent
 CANONICAL_PATH = RULE_REPO / "env" / "canonical.json"
 
 CURSOR_SETTINGS = HOME / "Library/Application Support/Cursor/User/settings.json"
-TRAE_SETTINGS = HOME / "Library/Application Support/Trae CN/User/settings.json"
 CLAUDE_SETTINGS = HOME / ".claude/settings.json"
 CODEX_CONFIG = HOME / ".codex/config.toml"
 ZPROFILE = HOME / ".zprofile"
@@ -118,23 +117,41 @@ def deploy_codex(canonical: dict[str, Any]) -> None:
         return
 
     base = strip_shell_environment_policy(CODEX_CONFIG.read_text(encoding="utf-8"))
-    conda_prefix = canonical["python"]["condaBase"]
     block = (
         "[shell_environment_policy]\n"
         'inherit = "core"\n'
         "experimental_use_profile = true\n"
-        f'set = {{ PATH = "{canonical["path"]}", CONDA_DEFAULT_ENV = "base", '
-        f'CONDA_PREFIX = "{conda_prefix}" }}\n'
+        f'set = {{ PATH = "{canonical["path"]}" }}\n'
     )
     CODEX_CONFIG.write_text(base.rstrip() + "\n\n" + block, encoding="utf-8")
     print(f"deploy: codex -> {CODEX_CONFIG} (shell_environment_policy)")
 
 
 def deploy_zprofile(canonical: dict[str, Any]) -> None:
-    content = f"""# Unified agent toolchain PATH (managed by Documents/code/rule/sync-global-env.sh)
-export PATH="{canonical["path"]}"
-"""
-    ZPROFILE.write_text(content, encoding="utf-8")
+    marker_start = "# >>> agent-standards PATH >>>"
+    marker_end = "# <<< agent-standards PATH <<<"
+    block = (
+        f"{marker_start}\n"
+        f'export PATH="{canonical["path"]}"\n'
+        f"{marker_end}"
+    )
+    text = ZPROFILE.read_text(encoding="utf-8") if ZPROFILE.exists() else ""
+
+    # Drop the previous managed block (marker-wrapped or legacy comment+export).
+    if marker_start in text:
+        pattern = re.compile(
+            re.escape(marker_start) + r".*?" + re.escape(marker_end), re.S
+        )
+        text = pattern.sub("", text)
+    else:
+        legacy = re.compile(
+            r"^# Unified agent toolchain PATH.*$\n^export PATH=.*$\n?", re.M
+        )
+        text = legacy.sub("", text)
+
+    text = text.rstrip()
+    text = f"{text}\n\n{block}\n" if text else f"{block}\n"
+    ZPROFILE.write_text(text, encoding="utf-8")
     print(f"deploy: login shell -> {ZPROFILE}")
 
 
@@ -155,7 +172,6 @@ def main() -> int:
     verify(canonical)
 
     deploy_vscode_settings(CURSOR_SETTINGS, canonical, "cursor")
-    deploy_vscode_settings(TRAE_SETTINGS, canonical, "trae-cn")
     deploy_claude(canonical)
     deploy_codex(canonical)
     deploy_zprofile(canonical)

@@ -1,0 +1,2 @@
+# 本地密钥：不进入 git（含远程历史）
+mcp/secrets.local.json

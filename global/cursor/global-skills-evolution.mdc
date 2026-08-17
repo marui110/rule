@@ -14,10 +14,10 @@ alwaysApply: true
 | 其余全局 skill | `~/.claude/skills/<name>/` |
 | Git 全量镜像（只读备份） | `~/Documents/code/skill/global/<name>/` |
 | 场景路由 / 目录 | `~/Documents/code/skill/SKILL_ROUTER.md`、`SKILLS_INDEX.md` |
-| Agent 入口模板 | `~/Documents/code/rule/agents/` → Claude `CLAUDE.md` / Codex·Trae `AGENTS.md` |
+| Agent 入口模板 | `~/Documents/code/rule/agents/` → Claude `CLAUDE.md` / Codex `AGENTS.md` |
 | 规则（唯一可写） | `~/.cursor/rules/global-*.mdc` |
 
-各 Agent 通过 symlink 读取 Skills，**不要**直接改 `~/.codex/skills`、`~/.trae-cn/skills`、`~/.agents/skills`、`~/.cursor/skills`。  
+各 Agent 通过 symlink 读取 Skills，**不要**直接改 `~/.codex/skills`、`~/.agents/skills`、`~/.cursor/skills`。  
 **不要**把 `global/` 当作主编辑源（下次同步会覆盖）。
 
 ## 何时进化
@@ -32,7 +32,7 @@ alwaysApply: true
 ## 同步命令
 
 ```bash
-# codeskill + ui-skills → runtime → 四端 symlink → global/ 镜像 + rules + agents 入口
+# codeskill + ui-skills → runtime → 三端 symlink → global/ 镜像 + rules + agents 入口
 ~/Documents/code/rule/sync-global-agent-standards.sh
 
 # Slash 命令（Cursor / Claude Code）

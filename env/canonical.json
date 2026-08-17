@@ -1,28 +1,22 @@
 {
   "version": 1,
   "python": {
-    "condaBase": "/opt/homebrew/Caskroom/miniconda/base",
-    "interpreter": "/opt/homebrew/Caskroom/miniconda/base/bin/python3.14",
-    "binDir": "/opt/homebrew/Caskroom/miniconda/base/bin",
-    "condaBinDir": "/opt/homebrew/Caskroom/miniconda/base/condabin"
+    "interpreter": "/usr/bin/python3",
+    "binDir": "/usr/bin"
   },
   "node": {
     "binary": "/opt/homebrew/bin/node",
     "binDir": "/opt/homebrew/bin"
   },
-  "path": "/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "path": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
   "terminalEnvOsx": {
-    "PATH": "/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
   "claudeEnv": {
-    "PATH": "/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
-    "CONDA_DEFAULT_ENV": "base",
-    "CONDA_PREFIX": "/opt/homebrew/Caskroom/miniconda/base",
-    "CONDA_EXE": "/opt/homebrew/Caskroom/miniconda/base/bin/conda",
-    "CONDA_PYTHON_EXE": "/opt/homebrew/Caskroom/miniconda/base/bin/python"
+    "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   },
   "vscodeKeys": {
-    "python.defaultInterpreterPath": "/opt/homebrew/Caskroom/miniconda/base/bin/python3.14",
+    "python.defaultInterpreterPath": "/usr/bin/python3",
     "typescript.tsserver.nodePath": "/opt/homebrew/bin/node",
     "npm.nodePath": "/opt/homebrew/bin/node"
   }

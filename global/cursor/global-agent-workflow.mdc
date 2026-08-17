@@ -30,7 +30,7 @@ alwaysApply: true
 
 **meta**：`using-agent-skills`、`evolve-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`。
 
-**工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`debugging-and-error-recovery`、`diagnosing-bugs`、`frontend-ui-engineering`、`frontend-design`、`api-and-interface-design`、`code-review-and-quality`、`code-review-skill`、`code-review`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`、`codebase-design`、`domain-modeling`、`improve-codebase-architecture`、`deploy-to-vercel`。
+**工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`debugging-and-error-recovery`、`diagnosing-bugs`、`frontend-ui-engineering`、`frontend-design`、`api-and-interface-design`、`code-review-and-quality`、`code-review-skill`、`code-review`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`、`codebase-design`、`domain-modeling`、`improve-codebase-architecture`、`deploy-to-vercel`、`vercel-post-deploy-verify`。
 
 **视觉 / 设计**：`ui-skills-root`（ibelick/ui-skills 路由）、`baseline-ui`、`improve-ui`、`create-design-md`、`fixing-accessibility`、`fixing-metadata`、`fixing-motion-performance`、`design-taste-frontend`、`design-taste-frontend-v1`、`high-end-visual-design`、`redesign-existing-projects`、`minimalist-ui`、`industrial-brutalist-ui`、`gpt-taste`、`brandkit`、`imagegen-frontend-web`、`imagegen-frontend-mobile`、`image-to-code`、`stitch-design-taste`、`impeccable`、`theme-factory`、`full-output-enforcement`、`apple-design`、`animate`、`improve-animations`、`find-animation-opportunities`。
 
@@ -96,6 +96,7 @@ alwaysApply: true
 | Matt implement / handoff | `implement` / `handoff` / `ask-matt` |
 | Apple Notes | `apple-notes` |
 | 部署 Vercel | `deploy-to-vercel` |
+| Vercel Ready 仍 500 / env 方言 | `vercel-post-deploy-verify` |
 | 浏览器冒烟 | `playwright-skill` / `webapp-testing` |
 | API 设计 | `api-and-interface-design` |
 | 提交 / CI / 上线 | `git-workflow-and-versioning` / `ci-cd-and-automation` / `shipping-and-launch` |

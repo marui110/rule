@@ -1,0 +1,16 @@
+---
+description: Personal agent_KB knowledge base pointer
+alwaysApply: true
+---
+
+# 个人知识库（agent_KB）
+
+会话涉及可复用结论、偏好、跨项目决策时，遵循：
+
+`/Users/marui/Documents/code/agent_KB/AGENTS.md`
+
+- 根目录：`/Users/marui/Documents/code/agent_KB`
+- 本项目页：`/Users/marui/Documents/code/agent_KB/projects/rule.md`
+- 默认可写：仅 `inbox/`
+- 正式区（memory / playbooks / profile）需用户确认后再晋升写入
+- 开始任务可先读：`profile/preferences.md`、相关 `playbooks/`、本项目页

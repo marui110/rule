@@ -6,6 +6,7 @@
 #   ~/Documents/code/skill/codeskill/*       →  ~/.claude/skills/*  (rsync)
 #   ~/Documents/code/skill/ui-skills/skills/* →  ~/.claude/skills/*  (symlink)
 #   ~/.claude/skills/*                       →  agent dirs (symlink)
+#   ~/.claude/skills/*                       →  ~/.workbuddy/skills/* (symlink)
 #   ~/.claude/skills/*                       →  ~/Documents/code/skill/global/* (rsync mirror)
 set -euo pipefail
 
@@ -24,23 +25,27 @@ GLOBAL_MIRROR="${SKILL_REPO}/global"
 SKILL_TARGETS=(
   "${HOME}/.agents/skills"
   "${HOME}/.cursor/skills"
-  "${HOME}/.trae-cn/skills"
   "${HOME}/.codex/skills"
+  "${HOME}/.workbuddy/skills"
 )
 
 RULE_AGENT_TARGETS=(
-  "${HOME}/.trae-cn/rules"
+  "${HOME}/.claude/rules"
 )
 
 RULE_REPO_CURSOR="${RULE_REPO}/global/cursor"
-RULE_REPO_TRAE="${RULE_REPO}/global/trae-cn"
 AGENTS_REPO="${RULE_REPO}/agents"
+
+# WorkBuddy target: converted rules (full dump + injected summary block)
+WB_RULES_FILE="${HOME}/.workbuddy/RULES.md"
+WB_MEMORY_FILE="${HOME}/.workbuddy/MEMORY.md"
+WB_BLOCK_START="<!-- WB-RULES:START -->"
+WB_BLOCK_END="<!-- WB-RULES:END -->"
 
 # template_name:dest_path  (claude-CLAUDE.md also copied to claude.md)
 AGENT_DEPLOYS=(
   "codex-AGENTS.md:${HOME}/.codex/AGENTS.md"
   "claude-CLAUDE.md:${HOME}/.claude/CLAUDE.md"
-  "trae-AGENTS.md:${HOME}/.trae-cn/AGENTS.md"
 )
 
 link_skill() {
@@ -58,6 +63,33 @@ link_skill() {
   fi
 
   ln -sf "$src" "$dest"
+}
+
+# Remove stale symlinks in a target dir whose canonical source no longer exists.
+# Safety: only touches symlinks pointing into CANONICAL_SKILLS; real dirs (e.g.
+# tool-managed skills like WorkBuddy's own) and dotfiles are never touched.
+prune_stale_links() {
+  local target="$1"
+  local pruned=0
+  shopt -s nullglob
+  local entry name real
+  for entry in "${target}"/*; do
+    name="$(basename "$entry")"
+    [[ "$name" == .* ]] && continue            # never touch dotfiles (tool-managed)
+    [[ -L "$entry" ]] || continue              # never touch real dirs/files
+    real="$(readlink "$entry")"
+    case "$real" in
+      "${CANONICAL_SKILLS}"/*) ;;              # points into canonical — ours
+      *) continue ;;                           # foreign symlink — leave it
+    esac
+    if [[ ! -e "${CANONICAL_SKILLS}/${name}/SKILL.md" ]]; then
+      rm -f "$entry"
+      echo "skills: pruned stale link ${target}/${name}" >&2
+      pruned=$((pruned + 1))
+    fi
+  done
+  shopt -u nullglob
+  echo "$pruned"
 }
 
 sync_codeskills() {
@@ -152,7 +184,13 @@ sync_skills() {
     linked=$((linked + 1))
   done
 
-  echo "skills: linked ${linked} skill(s) to ${#SKILL_TARGETS[@]} agent directories"
+  local pruned_total=0
+  local target
+  for target in "${SKILL_TARGETS[@]}"; do
+    pruned_total=$((pruned_total + $(prune_stale_links "$target")))
+  done
+
+  echo "skills: linked ${linked} skill(s) to ${#SKILL_TARGETS[@]} agent directories; pruned ${pruned_total} stale link(s)"
 }
 
 mirror_skills_to_repo() {
@@ -257,13 +295,21 @@ sync_rules_to_agents() {
 
   collect_global_rules
 
-  local copied=0
+  # expected file names (base + .md)
+  local expected=()
+  local base
+  for rule in "${GLOBAL_RULES[@]}"; do
+    base="$(basename "$rule" .mdc)"
+    expected+=("${base}.md")
+  done
+
+  local target
   for target in "${RULE_AGENT_TARGETS[@]}"; do
     mkdir -p "$target"
   done
 
+  local copied=0
   for rule in "${GLOBAL_RULES[@]}"; do
-    local base
     base="$(basename "$rule" .mdc)"
     for target in "${RULE_AGENT_TARGETS[@]}"; do
       cp "$rule" "${target}/${base}.md"
@@ -271,20 +317,42 @@ sync_rules_to_agents() {
     copied=$((copied + 1))
   done
 
+  # prune stale copies no longer in canonical
+  shopt -s nullglob
+  for target in "${RULE_AGENT_TARGETS[@]}"; do
+    local f name keep e
+    for f in "${target}"/*.md; do
+      name="$(basename "$f")"
+      keep=0
+      for e in "${expected[@]}"; do
+        [[ "$e" == "$name" ]] && keep=1 && break
+      done
+      if [[ "$keep" == "0" ]]; then
+        rm -f "$f"
+        echo "rules: removed stale ${target}/${name}"
+      fi
+    done
+  done
+  shopt -u nullglob
+
   echo "rules: copied ${copied} global rule(s) to ${#RULE_AGENT_TARGETS[@]} agent directories"
 }
 
 sync_rules_to_repo() {
   collect_global_rules
 
-  mkdir -p "$RULE_REPO_CURSOR" "$RULE_REPO_TRAE"
+  mkdir -p "$RULE_REPO_CURSOR"
+
+  local expected=()
+  local base
+  for rule in "${GLOBAL_RULES[@]}"; do
+    expected+=("$(basename "$rule")")
+  done
 
   local copied=0
   for rule in "${GLOBAL_RULES[@]}"; do
-    local base
     base="$(basename "$rule" .mdc)"
     cp "$rule" "${RULE_REPO_CURSOR}/${base}.mdc"
-    cp "$rule" "${RULE_REPO_TRAE}/${base}.md"
     copied=$((copied + 1))
   done
 
@@ -292,7 +360,135 @@ sync_rules_to_repo() {
     cp "${CANONICAL_RULES}/README.md" "${RULE_REPO_CURSOR}/README.md"
   fi
 
+  # prune stale mirror rules
+  shopt -s nullglob
+  local f name keep e
+  for f in "${RULE_REPO_CURSOR}"/global-*.mdc; do
+    name="$(basename "$f")"
+    keep=0
+    for e in "${expected[@]}"; do
+      [[ "$e" == "$name" ]] && keep=1 && break
+    done
+    if [[ "$keep" == "0" ]]; then
+      rm -f "$f"
+      echo "repo: removed stale mirror ${name}"
+    fi
+  done
+  shopt -u nullglob
+
   echo "repo: mirrored ${copied} global rule(s) to ${RULE_REPO}/global/"
+}
+
+# --- WorkBuddy rules target -------------------------------------------------
+# Converts canonical global-*.mdc (Cursor format) into WorkBuddy-readable form:
+#   1. ~/.workbuddy/RULES.md        — full dump (frontmatter stripped), regenerated every sync
+#   2. ~/.workbuddy/MEMORY.md       — auto-maintained block between
+#                                     <!-- WB-RULES:START --> / <!-- WB-RULES:END -->
+#                                     (injected each session; guides agent to RULES.md)
+# Canonical source stays ~/.cursor/rules/global-*.mdc (single source of truth).
+
+# Strip YAML frontmatter (first `---` block); body is markdown, kept as-is.
+extract_mdc_body() {
+  awk '
+    NR == 1 && $0 == "---" { fm = 1; next }
+    fm == 1 && $0 == "---" { fm = 0; next }
+    fm == 0 { print }
+  ' "$1"
+}
+
+# Pull the frontmatter `description:` line (quotes stripped).
+mdc_description() {
+  awk -v q="'" '
+    /^description:[[:space:]]*/ {
+      line = $0
+      sub(/^description:[[:space:]]*/, "", line)
+      gsub(/"/, "", line)
+      gsub(q, "", line)
+      print line
+      exit
+    }
+  ' "$1"
+}
+
+sync_rules_to_workbuddy() {
+  if [[ ! -d "$CANONICAL_RULES" ]]; then
+    echo "error: missing canonical rules dir: $CANONICAL_RULES" >&2
+    exit 1
+  fi
+
+  collect_global_rules
+  mkdir -p "${HOME}/.workbuddy"
+
+  # 1. Full dump -> RULES.md (overwrite every sync)
+  local gen_ts
+  gen_ts="$(date '+%Y-%m-%d %H:%M:%S %z')"
+  {
+    echo "# WorkBuddy 全局规则（自动同步产物）"
+    echo
+    echo "- 权威源：\`${CANONICAL_RULES}/global-*.mdc\`（Cursor 格式，单一权威源；仓库镜像 \`${RULE_REPO}/global/cursor/\`）"
+    echo "- 生成时间：${gen_ts}，由 \`${SYNC_SCRIPT}\` 自动生成"
+    echo "- **勿手改本文件**：改规则请编辑权威源，再重跑同步脚本"
+    echo "- 优先级：**项目规则 > 全局规则**"
+    echo
+    echo "## 目录"
+    echo
+    local rule base desc
+    for rule in "${GLOBAL_RULES[@]}"; do
+      base="$(basename "$rule" .mdc)"
+      desc="$(mdc_description "$rule")"
+      echo "- \`${base}.mdc\` — ${desc:-（无描述）}"
+    done
+    echo
+    echo "---"
+    echo
+    for rule in "${GLOBAL_RULES[@]}"; do
+      base="$(basename "$rule" .mdc)"
+      echo "## ${base}"
+      echo
+      extract_mdc_body "$rule"
+      echo
+      echo "---"
+      echo
+    done
+  } > "$WB_RULES_FILE"
+
+  # 2. Summary block -> MEMORY.md (only the START/END section, user content untouched)
+  local summary_file
+  summary_file="$(mktemp "${TMPDIR:-/tmp}/wb-rules.XXXXXX")"
+  {
+    echo "## 全局规则自动同步（脚本维护，勿手改此区块）"
+    echo
+    echo "- 权威源：\`${CANONICAL_RULES}/global-*.mdc\`；WorkBuddy 产物 **\`~/.workbuddy/RULES.md\`**（跑同步脚本自动刷新）"
+    echo "- 使用：每会话先扫 RULES.md 目录，命中主题再读对应段落；项目规则优先于全局。"
+    echo "- 规则清单："
+    local rule base desc
+    for rule in "${GLOBAL_RULES[@]}"; do
+      base="$(basename "$rule" .mdc)"
+      desc="$(mdc_description "$rule")"
+      echo "  - \`${base}\` — ${desc:-（无描述）}"
+    done
+  } > "$summary_file"
+
+  python3 - "$summary_file" "$WB_MEMORY_FILE" "$WB_BLOCK_START" "$WB_BLOCK_END" <<'PY'
+import sys, pathlib
+
+summary_file, mem_file, block_start, block_end = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+block = f"{block_start}\n" + pathlib.Path(summary_file).read_text().rstrip() + f"\n{block_end}\n"
+
+p = pathlib.Path(mem_file)
+content = p.read_text() if p.exists() else ""
+if block_start in content and block_end in content:
+    head = content.split(block_start)[0]
+    tail = content.split(block_end, 1)[1].lstrip("\n")
+    new = head.rstrip() + "\n\n" + block + tail
+else:
+    new = content.rstrip() + "\n\n" + block
+p.write_text(new)
+PY
+  rm -f "$summary_file"
+
+  echo "rules: workbuddy RULES.md regenerated (${#GLOBAL_RULES[@]} rule(s)) -> ${WB_RULES_FILE}"
+  echo "rules: workbuddy MEMORY.md block updated -> ${WB_MEMORY_FILE}"
 }
 
 deploy_agents_files() {
@@ -328,6 +524,7 @@ main() {
   mirror_skills_to_repo
   sync_rules_to_agents
   sync_rules_to_repo
+  sync_rules_to_workbuddy
   deploy_agents_files
   verify_skill_counts
   if [[ -x "${RULE_REPO}/sync-global-commands.sh" ]]; then
@@ -344,8 +541,10 @@ main() {
   echo "  ui-skills dir    : $UISKILLS_DIR"
   echo "  skills canonical : $CANONICAL_SKILLS"
   echo "  skills global    : $GLOBAL_MIRROR"
+  echo "  skills workbuddy : ${HOME}/.workbuddy/skills"
   echo "  rules canonical  : $CANONICAL_RULES"
   echo "  rules repo mirror: $RULE_REPO/global/"
+  echo "  rules workbuddy  : $WB_RULES_FILE (+ MEMORY.md block)"
   echo "  commands repo    : $RULE_REPO/commands/"
   echo "  sync script      : $SYNC_SCRIPT"
 }

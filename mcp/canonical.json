@@ -1,10 +1,6 @@
 {
   "version": 1,
-  "options": {
-    "trae": {
-      "httpViaMcpRemote": true
-    }
-  },
+  "options": {},
   "mcpServers": {
     "vercel": {
       "transport": "http",
@@ -14,14 +10,28 @@
       "transport": "http",
       "url": "https://mcp.supabase.com/mcp"
     },
-    "mastergo": {
+    "firecrawl-mcp": {
       "transport": "stdio",
       "command": "npx",
       "args": [
         "-y",
-        "@mastergo/vibe-mcp",
-        "--url=http://localhost:50678"
+        "firecrawl-mcp"
       ]
+    },
+    "open-design": {
+      "transport": "stdio",
+      "command": "/Applications/Open Design.app/Contents/Frameworks/Open Design Helper.app/Contents/MacOS/Open Design Helper",
+      "args": [
+        "/Applications/Open Design.app/Contents/Resources/app/prebundled/daemon/daemon-cli.mjs",
+        "mcp"
+      ],
+      "env": {
+        "OD_DATA_DIR": "/Users/marui/Library/Application Support/Open Design/namespaces/release-stable/data",
+        "OD_SIDECAR_IPC_PATH": "/tmp/open-design/ipc/release-stable/daemon.sock",
+        "OD_MCP_BOOTSTRAP_COMMAND": "/usr/bin/open",
+        "OD_MCP_BOOTSTRAP_ARGS": "[\"-g\",\"-j\",\"/Applications/Open Design.app\",\"--args\",\"--headless\"]",
+        "ELECTRON_RUN_AS_NODE": "1"
+      }
     }
   }
 }

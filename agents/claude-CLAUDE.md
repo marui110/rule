@@ -45,3 +45,10 @@
 **同主题优先**：TDD → `test-driven-development`；设计默认 `design-taste-frontend`（非 `-v1`）；UI 先 ui-skills 再叠其他视觉 skill。
 
 项目本地 `AGENTS.md` / `.cursor/rules/` 优先于本文件。
+
+## 个人知识库（agent_KB）
+
+@/Users/marui/Documents/code/agent_KB/AGENTS.md
+
+所有会话均挂载：`/Users/marui/Documents/code/agent_KB`（协议：`AGENTS.md`）。  
+默认可写仅 `inbox/`；正式区需用户确认。业务仓指针：`.cursor/rules/agent_KB-pointer.mdc`。

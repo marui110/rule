@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sync slash commands from rule repo to Cursor / Claude Code.
+# Sync slash commands from rule repo to Cursor / Claude Code / Codex.
 set -euo pipefail
 
 HOME="${HOME:-$HOME}"
@@ -10,6 +10,7 @@ CANONICAL_COMMANDS="${RULE_REPO}/commands"
 COMMAND_TARGETS=(
   "${HOME}/.cursor/commands"
   "${HOME}/.claude/commands"
+  "${HOME}/.codex/commands"
 )
 
 if [[ ! -d "$CANONICAL_COMMANDS" ]]; then
@@ -37,6 +38,22 @@ for cmd in "${COMMAND_FILES[@]}"; do
     cp "$cmd" "${target}/${base_name}"
   done
   copied=$((copied + 1))
+done
+
+# prune stale commands no longer in canonical
+for target in "${COMMAND_TARGETS[@]}"; do
+  for f in "${target}"/*.md; do
+    [[ -e "$f" ]] || continue
+    name="$(basename "$f")"
+    keep=0
+    for cmd in "${COMMAND_FILES[@]}"; do
+      [[ "$(basename "$cmd")" == "$name" ]] && keep=1 && break
+    done
+    if [[ "$keep" == "0" ]]; then
+      rm -f "$f"
+      echo "commands: removed stale ${target}/${name}"
+    fi
+  done
 done
 
 echo "commands: copied ${copied} command(s) to ${#COMMAND_TARGETS[@]} agent directories"

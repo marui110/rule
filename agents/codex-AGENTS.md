@@ -1,12 +1,12 @@
 # Global Agent Standards (Codex)
 
-规则：`~/.trae-cn/rules/global-*.md`（与 `~/.cursor/rules/global-*.mdc` 同步）  
-Skills：`~/.codex/skills/`（symlink → `~/.claude/skills/`；另镜像 `~/.agents/skills/`、`~/.cursor/skills/`、`~/.trae-cn/skills/`）  
+规则：`~/.cursor/rules/global-*.mdc`（本端读取 Cursor 规则）  
+Skills：`~/.codex/skills/`（symlink → `~/.claude/skills/`；另镜像 `~/.agents/skills/`、`~/.cursor/skills/`）  
 Git 全量备份：`~/Documents/code/skill/global/`  
 场景路由：`~/Documents/code/skill/SKILL_ROUTER.md`  
 全量目录：`~/Documents/code/skill/SKILLS_INDEX.md`
 
-项目本地：`AGENTS.md`、`.cursor/rules/`、`.trae/rules/` 优先于全局。
+项目本地：`AGENTS.md`、`.cursor/rules/` 优先于全局。
 
 同步：`~/Documents/code/rule/sync-global-agent-standards.sh`
 
@@ -37,6 +37,13 @@ Git 全量备份：`~/Documents/code/skill/global/`
 读 skill：`~/.codex/skills/<name>/SKILL.md`。
 
 **同主题优先**：`test-driven-development`（非短 `tdd`）；`design-taste-frontend`（非 `-v1`）；UI 先 ui-skills。
+
+## 个人知识库（agent_KB）
+
+@/Users/marui/Documents/code/agent_KB/AGENTS.md
+
+所有会话均挂载：`/Users/marui/Documents/code/agent_KB`（协议：`AGENTS.md`）。  
+默认可写仅 `inbox/`；正式区需用户确认。业务仓指针：`.cursor/rules/agent_KB-pointer.mdc`。
 
 ## Codex 项目脚手架
 

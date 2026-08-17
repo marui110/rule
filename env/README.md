@@ -4,9 +4,9 @@
 
 | 工具 | 路径 |
 |------|------|
-| Python | Miniconda `base`：`/opt/homebrew/Caskroom/miniconda/base/bin/python3.14` |
+| Python | 系统 `/usr/bin/python3` |
 | Node.js | Homebrew：`/opt/homebrew/bin/node` |
-| PATH | miniconda/base → homebrew → 系统路径 |
+| PATH | homebrew → 系统路径 |
 
 `terminal.integrated.env.osx` 仅同步 PATH，不写入代理变量。
 
@@ -17,7 +17,6 @@
 | Agent | 写入位置 |
 |-------|----------|
 | Cursor | `~/Library/Application Support/Cursor/User/settings.json` |
-| Trae CN | `~/Library/Application Support/Trae CN/User/settings.json` |
 | Claude Code | `~/.claude/settings.json` → `env.PATH` |
 | Codex | `~/.codex/config.toml` → `[shell_environment_policy]` |
 | Login shell | `~/.zprofile` |

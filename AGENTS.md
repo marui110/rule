@@ -8,10 +8,10 @@
 | 场景路由 / 目录 | `~/Documents/code/skill/SKILL_ROUTER.md`、`SKILLS_INDEX.md` |
 | codeskill 权威源 | `~/Documents/code/skill/codeskill/`（含 `evolve-skills`） |
 | UI Skills（ibelick） | `~/Documents/code/skill/ui-skills/` → `ui-skills-root` 等；规则 `global-ui-skills.mdc` |
-| Agent 入口模板 | `agents/claude-CLAUDE.md` → `~/.claude/CLAUDE.md`；`agents/codex-AGENTS.md` → `~/.codex/AGENTS.md`；`agents/trae-AGENTS.md` → `~/.trae-cn/AGENTS.md` |
+| Agent 入口模板 | `agents/claude-CLAUDE.md` → `~/.claude/CLAUDE.md`；`agents/codex-AGENTS.md` → `~/.codex/AGENTS.md` |
 | Codex 脚手架 | `global-codex-project-structure.mdc`（新建 Codex/Agent 项目时） |
-| 规则镜像（本仓库） | `global/cursor/`、`global/trae-cn/` |
-| Slash 命令（本仓库） | `commands/*.md` → `~/.cursor/commands`、`~/.claude/commands` |
+| 规则镜像（本仓库） | `global/cursor/` |
+| Slash 命令（本仓库） | `commands/*.md` → `~/.cursor/commands`、`~/.claude/commands`、`~/.codex/commands` |
 | 本项目 | `project/.cursor/rules/*.mdc` |
 
 本地规则优先于全局。命中意图时**自动**读对应 skill（见 `SKILL_ROUTER.md` / `global-agent-workflow`）。
@@ -24,16 +24,16 @@
 
 兼容旧路径：`~/.agents/sync-global-agent-standards.sh`（wrapper）
 
-**同步 Slash 命令（Cursor / Claude Code）：**
+**同步 Slash 命令（Cursor / Claude Code / Codex）：**
 
 ```bash
 ~/Documents/code/rule/sync-global-commands.sh
 ```
 
-**同步 MCP（Cursor / Trae CN → Claude / Codex）：**
+**同步 MCP（Cursor → Claude / Codex）：**
 
 ```bash
-~/Documents/code/rule/sync-global-mcp.sh --import   # 先从 Cursor/Trae 导入再部署
+~/Documents/code/rule/sync-global-mcp.sh --import   # 先从 Cursor 导入再部署
 ~/Documents/code/rule/sync-global-mcp.sh            # 仅按 mcp/canonical.json 部署
 ```
 
@@ -43,7 +43,7 @@
 ~/Documents/code/rule/sync-global-env.sh
 ```
 
-- Python → Miniconda `base`（`python3.14`）
+- Python → 系统 `/usr/bin/python3`
 - Node.js → Homebrew（`/opt/homebrew/bin/node`）
 - 详见 `env/README.md`
 
@@ -72,3 +72,10 @@ npx skills add ibelick/ui-skills -g -y
 - Meta skill：`evolve-skills`
 - 规则：`global-skills-evolution.mdc`
 - 用户纠正 / 重复踩坑 → 读 `evolve-skills` → 改对应权威源 → 跑同步脚本
+
+## 个人知识库
+
+- 根目录：`/Users/marui/Documents/code/agent_KB`
+- 协议：`/Users/marui/Documents/code/agent_KB/AGENTS.md`
+- 本项目页：`/Users/marui/Documents/code/agent_KB/projects/rule.md`
+- 写入：仅 `inbox/`；正式区需用户确认晋升

@@ -10,6 +10,6 @@
 
 - `~/Documents/code/skill/codeskill/` 已部署到 `~/.claude/skills/`
 - `~/Documents/code/skill/ui-skills/skills/` 已链接到 `~/.claude/skills/`
-- Cursor / Codex / Trae / Agents 的 skill 数量与权威源一致
+- Cursor / Codex / Agents 的 skill 数量与权威源一致
 - `~/Documents/code/skill/global/` 含全量镜像
-- `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md`、`~/.trae-cn/AGENTS.md` 已更新
+- `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md` 已更新

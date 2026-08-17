@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sync MCP servers from canonical config to Cursor, Trae CN, Claude Code, Codex."""
+"""Sync MCP servers from canonical config to Cursor, Claude Code, Codex."""
 
 from __future__ import annotations
 
@@ -14,15 +14,14 @@ from typing import Any
 HOME = Path(os.environ.get("HOME", str(Path.home())))
 RULE_REPO = Path(__file__).resolve().parent.parent
 CANONICAL_PATH = RULE_REPO / "mcp" / "canonical.json"
+SECRETS_PATH = RULE_REPO / "mcp" / "secrets.local.json"
 
 CURSOR_MCP = HOME / ".cursor" / "mcp.json"
-TRAE_MCP = HOME / "Library/Application Support/Trae CN/User/mcp.json"
 CLAUDE_JSON = HOME / ".claude.json"
 CODEX_CONFIG = HOME / ".codex" / "config.toml"
 
 IMPORT_SOURCES = {
     "cursor": CURSOR_MCP,
-    "trae": TRAE_MCP,
 }
 
 
@@ -50,6 +49,10 @@ def normalize_server(name: str, server: dict[str, Any]) -> dict[str, Any]:
             normalized["headers"] = server["headers"]
         if server.get("env"):
             normalized["env"] = server["env"]
+        if "disabled" in server:
+            normalized["disabled"] = server["disabled"]
+        if "timeout" in server:
+            normalized["timeout"] = server["timeout"]
         return normalized
 
     command = server.get("command")
@@ -71,6 +74,10 @@ def normalize_server(name: str, server: dict[str, Any]) -> dict[str, Any]:
         }
         if server.get("env"):
             normalized["env"] = server["env"]
+        if "disabled" in server:
+            normalized["disabled"] = server["disabled"]
+        if "timeout" in server:
+            normalized["timeout"] = server["timeout"]
         return normalized
 
     raise ValueError(f"Unsupported MCP server shape for '{name}': {server}")
@@ -89,20 +96,12 @@ def normalize_document(data: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def merge_canonical(existing: dict[str, Any], incoming: dict[str, Any]) -> dict[str, Any]:
-    merged = {
-        "version": existing.get("version", incoming.get("version", 1)),
-        "options": {**existing.get("options", {}), **incoming.get("options", {})},
-        "mcpServers": {**existing.get("mcpServers", {}), **incoming.get("mcpServers", {})},
-    }
-    return merged
-
-
 def import_sources() -> dict[str, Any]:
     canonical = load_json(CANONICAL_PATH)
     if not canonical:
         canonical = {"version": 1, "options": {}, "mcpServers": {}}
 
+    existing = dict(canonical.get("mcpServers", {}))
     imported = 0
     for label, path in IMPORT_SOURCES.items():
         if not path.exists():
@@ -113,13 +112,18 @@ def import_sources() -> dict[str, Any]:
         if not servers:
             print(f"import: skip {label} (empty mcpServers)")
             continue
-        normalized = normalize_document({"mcpServers": servers})
-        canonical = merge_canonical(canonical, normalized)
-        imported += len(normalized["mcpServers"])
-        print(f"import: merged {len(normalized['mcpServers'])} server(s) from {label}")
+        normalized = normalize_document({"mcpServers": servers})["mcpServers"]
+        new = {name: server for name, server in normalized.items() if name not in existing}
+        if new:
+            existing.update(new)
+            imported += len(new)
+            print(f"import: added {len(new)} server(s) from {label}: {', '.join(new)}")
+        else:
+            print(f"import: no new servers from {label}")
 
+    canonical["mcpServers"] = existing
     if imported == 0:
-        print("import: no servers found in cursor/trae sources")
+        print("import: no new servers found (canonical already authoritative)")
     save_json(CANONICAL_PATH, canonical)
     return canonical
 
@@ -134,26 +138,13 @@ def to_cursor(server: dict[str, Any]) -> dict[str, Any]:
         }
     if server.get("env"):
         payload["env"] = server["env"]
+    if "disabled" in server:
+        payload["disabled"] = server["disabled"]
+    if "timeout" in server:
+        payload["timeout"] = server["timeout"]
     return payload
 
 
-def to_trae(server: dict[str, Any], options: dict[str, Any]) -> dict[str, Any]:
-    trae_opts = options.get("trae", {})
-    if server["transport"] == "http" and trae_opts.get("httpViaMcpRemote", True):
-        payload: dict[str, Any] = {
-            "command": "npx",
-            "args": ["mcp-remote", server["url"]],
-        }
-    elif server["transport"] == "http":
-        payload = {"url": server["url"]}
-    else:
-        payload = {
-            "command": server["command"],
-            "args": server.get("args", []),
-        }
-    if server.get("env"):
-        payload["env"] = server["env"]
-    return payload
 
 
 def to_claude(server: dict[str, Any]) -> dict[str, Any]:
@@ -170,11 +161,17 @@ def to_claude(server: dict[str, Any]) -> dict[str, Any]:
         }
     if server.get("env"):
         payload["env"] = server["env"]
+    if "disabled" in server:
+        payload["disabled"] = server["disabled"]
+    if "timeout" in server:
+        payload["timeout"] = server["timeout"]
     return payload
 
 
-def deploy_cursor(servers: dict[str, Any], options: dict[str, Any]) -> None:
+def deploy_cursor(servers: dict[str, Any], options: dict[str, Any], version: int) -> None:
     payload = {
+        "version": version,
+        "options": options,
         "mcpServers": {
             name: to_cursor(server)
             for name, server in servers.items()
@@ -184,15 +181,6 @@ def deploy_cursor(servers: dict[str, Any], options: dict[str, Any]) -> None:
     print(f"deploy: cursor -> {CURSOR_MCP} ({len(payload['mcpServers'])} server(s))")
 
 
-def deploy_trae(servers: dict[str, Any], options: dict[str, Any]) -> None:
-    payload = {
-        "mcpServers": {
-            name: to_trae(server, options)
-            for name, server in servers.items()
-        }
-    }
-    save_json(TRAE_MCP, payload)
-    print(f"deploy: trae-cn -> {TRAE_MCP} ({len(payload['mcpServers'])} server(s))")
 
 
 def deploy_claude(servers: dict[str, Any]) -> None:
@@ -221,7 +209,7 @@ def render_codex_toml_block(name: str, server: dict[str, Any]) -> str:
         lines.append(f"args = [{args_literal}]")
     if server.get("env"):
         for key, value in server["env"].items():
-            lines.append(f'env.{key} = "{value}"')
+            lines.append(f'env.{key} = {json.dumps(value)}')
     return "\n".join(lines)
 
 
@@ -255,15 +243,32 @@ def deploy_codex(servers: dict[str, Any]) -> None:
     print(f"deploy: codex -> {CODEX_CONFIG} ({len(servers)} server(s))")
 
 
+def apply_secrets(servers: dict[str, Any]) -> dict[str, Any]:
+    secrets = load_json(SECRETS_PATH)
+    if not secrets:
+        return servers
+    merged = {}
+    for name, server in servers.items():
+        extra = secrets.get(name) if isinstance(secrets, dict) else None
+        if extra and isinstance(extra, dict):
+            server = dict(server)
+            env = dict(server.get("env", {}))
+            env.update(extra)
+            server["env"] = env
+        merged[name] = server
+    return merged
+
+
 def deploy_all(canonical: dict[str, Any]) -> None:
     servers = canonical.get("mcpServers") or {}
     options = canonical.get("options") or {}
+    version = canonical.get("version", 1)
     if not servers:
         print("deploy: no servers in canonical config")
         return
 
-    deploy_cursor(servers, options)
-    deploy_trae(servers, options)
+    servers = apply_secrets(servers)
+    deploy_cursor(servers, options, version)
     deploy_claude(servers)
     deploy_codex(servers)
 
@@ -274,7 +279,7 @@ def main() -> int:
         "--import",
         dest="do_import",
         action="store_true",
-        help="Merge MCP servers from Cursor and Trae CN into mcp/canonical.json before deploy",
+        help="Merge MCP servers from Cursor into mcp/canonical.json before deploy",
     )
     args = parser.parse_args()
 
