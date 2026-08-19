@@ -1,5 +1,5 @@
 ---
-description: 跨 Agent 全局规范入口 — Cursor / Claude Code / Codex 路径与优先级
+description: 跨 Agent 全局规范入口 — Cursor / Claude Code / Codex / VSCode Copilot 路径与优先级
 alwaysApply: true
 ---
 
@@ -12,8 +12,9 @@ alwaysApply: true
 | **Cursor** | `~/.cursor/rules/global-*.mdc` | `<repo>/.cursor/rules/*.mdc`、`<repo>/AGENTS.md` |
 | **Claude Code** | `~/.claude/CLAUDE.md` + 读 `~/.cursor/rules/global-*.mdc` | `<repo>/AGENTS.md`、`<repo>/CLAUDE.md`、`<repo>/.cursor/rules/` |
 | **Codex** | `~/.codex/AGENTS.md` | `<repo>/AGENTS.md` |
+| **VSCode Copilot** | `~/.vscode/copilot-instructions.md` + settings.json | `<repo>/.github/copilot-instructions.md` |
 
-入口模板权威源：`~/Documents/code/rule/agents/`（`claude-CLAUDE.md` / `codex-AGENTS.md`），由同步脚本部署。
+入口模板权威源：`~/Documents/code/rule/agents/`（`claude-CLAUDE.md` / `codex-AGENTS.md` / `vscode-copilot-instructions.md`），由同步脚本部署。
 
 ## Skill 路径
 
@@ -31,6 +32,7 @@ alwaysApply: true
 | **Cursor** | `~/.cursor/skills/`（symlink） |
 | **Claude Code** | `~/.claude/skills/<name>/SKILL.md` |
 | **Codex** | `~/.codex/skills/`（symlink） |
+| **VSCode Copilot** | `~/.vscode/skills/`（symlink） |
 | **Agents 镜像** | `~/.agents/skills/`（symlink） |
 
 安装/同步：
@@ -38,6 +40,12 @@ alwaysApply: true
 ```bash
 ~/Documents/code/rule/sync-global-agent-standards.sh   # codeskill + ui-skills + skills + global镜像 + rules + agents入口
 ~/Documents/code/rule/sync-global-commands.sh          # slash 命令
+```
+
+项目级 Copilot 指令部署：
+
+```bash
+~/.vscode/deploy-copilot.sh <project_dir>   # 拷贝完整指令到 <project_dir>/.github/copilot-instructions.md
 ```
 
 ## 本项目沉淀的规范 Skill

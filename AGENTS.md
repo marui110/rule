@@ -8,7 +8,8 @@
 | 场景路由 / 目录 | `~/Documents/code/skill/SKILL_ROUTER.md`、`SKILLS_INDEX.md` |
 | codeskill 权威源 | `~/Documents/code/skill/codeskill/`（含 `evolve-skills`） |
 | UI Skills（ibelick） | `~/Documents/code/skill/ui-skills/` → `ui-skills-root` 等；规则 `global-ui-skills.mdc` |
-| Agent 入口模板 | `agents/claude-CLAUDE.md` → `~/.claude/CLAUDE.md`；`agents/codex-AGENTS.md` → `~/.codex/AGENTS.md` |
+| Agent 入口模板 | `agents/claude-CLAUDE.md` → `~/.claude/CLAUDE.md`；`agents/codex-AGENTS.md` → `~/.codex/AGENTS.md`；`agents/vscode-copilot-instructions.md` → `~/.vscode/copilot-instructions.md` |
+| VSCode Copilot | `~/.vscode/`（symlinks: rules/skills/agent_KB）+ settings.json 内联指令；项目级 `.github/copilot-instructions.md`（`~/.vscode/deploy-copilot.sh <dir>`） |
 | Codex 脚手架 | `global-codex-project-structure.mdc`（新建 Codex/Agent 项目时） |
 | 规则镜像（本仓库） | `global/cursor/` |
 | Slash 命令（本仓库） | `commands/*.md` → `~/.cursor/commands`、`~/.claude/commands`、`~/.codex/commands` |

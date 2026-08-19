@@ -6,7 +6,7 @@
 #   ~/Documents/code/skill/codeskill/*       →  ~/.claude/skills/*  (rsync)
 #   ~/Documents/code/skill/ui-skills/skills/* →  ~/.claude/skills/*  (symlink)
 #   ~/.claude/skills/*                       →  agent dirs (symlink)
-#   ~/.claude/skills/*                       →  ~/.workbuddy/skills/* (symlink)
+#   ~/.claude/skills/*                       →  ~/Documents/code/skill/global/* (rsync mirror)
 #   ~/.claude/skills/*                       →  ~/Documents/code/skill/global/* (rsync mirror)
 set -euo pipefail
 
@@ -26,7 +26,6 @@ SKILL_TARGETS=(
   "${HOME}/.agents/skills"
   "${HOME}/.cursor/skills"
   "${HOME}/.codex/skills"
-  "${HOME}/.workbuddy/skills"
 )
 
 RULE_AGENT_TARGETS=(
@@ -36,17 +35,15 @@ RULE_AGENT_TARGETS=(
 RULE_REPO_CURSOR="${RULE_REPO}/global/cursor"
 AGENTS_REPO="${RULE_REPO}/agents"
 
-# WorkBuddy target: converted rules (full dump + injected summary block)
-WB_RULES_FILE="${HOME}/.workbuddy/RULES.md"
-WB_MEMORY_FILE="${HOME}/.workbuddy/MEMORY.md"
-WB_BLOCK_START="<!-- WB-RULES:START -->"
-WB_BLOCK_END="<!-- WB-RULES:END -->"
-
 # template_name:dest_path  (claude-CLAUDE.md also copied to claude.md)
 AGENT_DEPLOYS=(
   "codex-AGENTS.md:${HOME}/.codex/AGENTS.md"
   "claude-CLAUDE.md:${HOME}/.claude/CLAUDE.md"
 )
+
+VSCODE_DIR="${HOME}/.vscode"
+VSCODE_SETTINGS="${HOME}/Library/Application Support/Code/User/settings.json"
+AGENT_KB_DIR="${HOME}/Documents/code/agent_KB"
 
 link_skill() {
   local name="$1"
@@ -66,8 +63,7 @@ link_skill() {
 }
 
 # Remove stale symlinks in a target dir whose canonical source no longer exists.
-# Safety: only touches symlinks pointing into CANONICAL_SKILLS; real dirs (e.g.
-# tool-managed skills like WorkBuddy's own) and dotfiles are never touched.
+# Safety: only touches symlinks pointing into CANONICAL_SKILLS; real dirs and dotfiles are never touched.
 prune_stale_links() {
   local target="$1"
   local pruned=0
@@ -379,118 +375,6 @@ sync_rules_to_repo() {
   echo "repo: mirrored ${copied} global rule(s) to ${RULE_REPO}/global/"
 }
 
-# --- WorkBuddy rules target -------------------------------------------------
-# Converts canonical global-*.mdc (Cursor format) into WorkBuddy-readable form:
-#   1. ~/.workbuddy/RULES.md        — full dump (frontmatter stripped), regenerated every sync
-#   2. ~/.workbuddy/MEMORY.md       — auto-maintained block between
-#                                     <!-- WB-RULES:START --> / <!-- WB-RULES:END -->
-#                                     (injected each session; guides agent to RULES.md)
-# Canonical source stays ~/.cursor/rules/global-*.mdc (single source of truth).
-
-# Strip YAML frontmatter (first `---` block); body is markdown, kept as-is.
-extract_mdc_body() {
-  awk '
-    NR == 1 && $0 == "---" { fm = 1; next }
-    fm == 1 && $0 == "---" { fm = 0; next }
-    fm == 0 { print }
-  ' "$1"
-}
-
-# Pull the frontmatter `description:` line (quotes stripped).
-mdc_description() {
-  awk -v q="'" '
-    /^description:[[:space:]]*/ {
-      line = $0
-      sub(/^description:[[:space:]]*/, "", line)
-      gsub(/"/, "", line)
-      gsub(q, "", line)
-      print line
-      exit
-    }
-  ' "$1"
-}
-
-sync_rules_to_workbuddy() {
-  if [[ ! -d "$CANONICAL_RULES" ]]; then
-    echo "error: missing canonical rules dir: $CANONICAL_RULES" >&2
-    exit 1
-  fi
-
-  collect_global_rules
-  mkdir -p "${HOME}/.workbuddy"
-
-  # 1. Full dump -> RULES.md (overwrite every sync)
-  local gen_ts
-  gen_ts="$(date '+%Y-%m-%d %H:%M:%S %z')"
-  {
-    echo "# WorkBuddy 全局规则（自动同步产物）"
-    echo
-    echo "- 权威源：\`${CANONICAL_RULES}/global-*.mdc\`（Cursor 格式，单一权威源；仓库镜像 \`${RULE_REPO}/global/cursor/\`）"
-    echo "- 生成时间：${gen_ts}，由 \`${SYNC_SCRIPT}\` 自动生成"
-    echo "- **勿手改本文件**：改规则请编辑权威源，再重跑同步脚本"
-    echo "- 优先级：**项目规则 > 全局规则**"
-    echo
-    echo "## 目录"
-    echo
-    local rule base desc
-    for rule in "${GLOBAL_RULES[@]}"; do
-      base="$(basename "$rule" .mdc)"
-      desc="$(mdc_description "$rule")"
-      echo "- \`${base}.mdc\` — ${desc:-（无描述）}"
-    done
-    echo
-    echo "---"
-    echo
-    for rule in "${GLOBAL_RULES[@]}"; do
-      base="$(basename "$rule" .mdc)"
-      echo "## ${base}"
-      echo
-      extract_mdc_body "$rule"
-      echo
-      echo "---"
-      echo
-    done
-  } > "$WB_RULES_FILE"
-
-  # 2. Summary block -> MEMORY.md (only the START/END section, user content untouched)
-  local summary_file
-  summary_file="$(mktemp "${TMPDIR:-/tmp}/wb-rules.XXXXXX")"
-  {
-    echo "## 全局规则自动同步（脚本维护，勿手改此区块）"
-    echo
-    echo "- 权威源：\`${CANONICAL_RULES}/global-*.mdc\`；WorkBuddy 产物 **\`~/.workbuddy/RULES.md\`**（跑同步脚本自动刷新）"
-    echo "- 使用：每会话先扫 RULES.md 目录，命中主题再读对应段落；项目规则优先于全局。"
-    echo "- 规则清单："
-    local rule base desc
-    for rule in "${GLOBAL_RULES[@]}"; do
-      base="$(basename "$rule" .mdc)"
-      desc="$(mdc_description "$rule")"
-      echo "  - \`${base}\` — ${desc:-（无描述）}"
-    done
-  } > "$summary_file"
-
-  python3 - "$summary_file" "$WB_MEMORY_FILE" "$WB_BLOCK_START" "$WB_BLOCK_END" <<'PY'
-import sys, pathlib
-
-summary_file, mem_file, block_start, block_end = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
-block = f"{block_start}\n" + pathlib.Path(summary_file).read_text().rstrip() + f"\n{block_end}\n"
-
-p = pathlib.Path(mem_file)
-content = p.read_text() if p.exists() else ""
-if block_start in content and block_end in content:
-    head = content.split(block_start)[0]
-    tail = content.split(block_end, 1)[1].lstrip("\n")
-    new = head.rstrip() + "\n\n" + block + tail
-else:
-    new = content.rstrip() + "\n\n" + block
-p.write_text(new)
-PY
-  rm -f "$summary_file"
-
-  echo "rules: workbuddy RULES.md regenerated (${#GLOBAL_RULES[@]} rule(s)) -> ${WB_RULES_FILE}"
-  echo "rules: workbuddy MEMORY.md block updated -> ${WB_MEMORY_FILE}"
-}
-
 deploy_agents_files() {
   local deployed=0
   for mapping in "${AGENT_DEPLOYS[@]}"; do
@@ -517,6 +401,78 @@ deploy_agents_files() {
   echo "agents: deployed ${deployed} template(s) from ${AGENTS_REPO}/"
 }
 
+sync_vscode_copilot() {
+  mkdir -p "$VSCODE_DIR"
+
+  # Symlinks: rules, skills, agent_KB
+  ln -sfn "$CANONICAL_RULES" "${VSCODE_DIR}/rules"
+  ln -sfn "${HOME}/.codex/skills" "${VSCODE_DIR}/skills"
+  ln -sfn "$AGENT_KB_DIR" "${VSCODE_DIR}/agent_KB"
+
+  # Deploy copilot-instructions.md
+  local src="${AGENTS_REPO}/vscode-copilot-instructions.md"
+  if [[ -f "$src" ]]; then
+    cp "$src" "${VSCODE_DIR}/copilot-instructions.md"
+  else
+    echo "warning: missing vscode-copilot-instructions.md template" >&2
+  fi
+
+  # Deploy deploy-copilot.sh
+  local deploy_script="${RULE_REPO}/scripts/deploy-copilot.sh"
+  if [[ -f "$deploy_script" ]]; then
+    cp "$deploy_script" "${VSCODE_DIR}/deploy-copilot.sh"
+    chmod +x "${VSCODE_DIR}/deploy-copilot.sh"
+  fi
+
+  # Update VSCode settings.json (merge copilot instructions, preserve existing keys)
+  local settings_dir
+  settings_dir="$(dirname "$VSCODE_SETTINGS")"
+  mkdir -p "$settings_dir"
+
+  python3 - "$VSCODE_SETTINGS" <<'PYEOF'
+import json, sys, os
+
+settings_path = sys.argv[1]
+COPILOT_CODEGEN = "You are a senior engineer following global agent standards shared across Cursor, Claude Code, Codex, and VSCode Copilot.\n\n## Resources (read on demand)\n- Rules: ~/.vscode/rules/global-*.mdc\n- Skills: ~/.vscode/skills/<name>/SKILL.md (150+ skills)\n- Skill router: ~/Documents/code/skill/SKILL_ROUTER.md\n- Knowledge base: ~/.vscode/agent_KB/ (protocol: AGENTS.md; writable: inbox/ only)\n\n## Workflow\n- Project-local rules (AGENTS.md, .cursor/rules/, README.md, package.json) override globals.\n- Non-trivial changes: spec first, then implement, then verify.\n- Phase A (plan): explore -> spec -> task breakdown -> plan\n- Phase B (implement): TDD (red -> green -> refactor) + thin slices; UI tasks start with ui-skills-root\n- Phase C (review): verify against acceptance criteria -> code-review-and-quality -> verification-before-completion\n- Phase G (governance): diagnose -> simplify -> verify (behavior unchanged)\n\n## Next.js SaaS\n- Server Components first; Server Actions over API routes (except webhooks/cron)\n- Server Action rules: 'use server' on top, derive userId from session (never accept as arg), auth on first line, Zod validate, DB queries filter by userId, revalidate after mutation\n- Component layers: components/ui/ (shadcn) -> components/shared/ -> components/{domain}/\n- Personalized pages: force-dynamic; never cache user-data RSC\n\n## Security\n- RLS + app-layer userId filter (double insurance)\n- Zod validate all external input\n- Rate limit by userId + operation type; store in DB/Redis\n- AI quota: deduct after success only\n- Secrets via env, never in code\n\n## Performance\n- Same-page UI state (tabs/filters/pagination): setState + history.replaceState, NEVER router.push\n- Write operations: optimistic UI -> persist -> rollback on failure\n- Merge DB reads (Promise.all or CTE)\n- Auth middleware: local session fast-path, remote refresh only when token expiring\n\n## UI Conventions\n- shadcn + CSS variables; semantic tokens (background, foreground, muted, accent, destructive, border, ring)\n- accent = brand color; destructive = independent red; hover uses muted not accent\n- Typography: ui-text-title / ui-text-section / ui-text-body / ui-text-caption\n- Focus rings visible; aria-label on icon buttons; support prefers-reduced-motion\n- Button hover: CSS only (no scale); list entrance: framer-motion stagger; motion vars in lib/motion.ts\n\n## Skill Routing (read SKILL.md when intent matches)\n- Bug: systematic-debugging -> test-driven-development\n- New feature: spec-driven-development -> writing-plans -> incremental-implementation\n- UI task: ui-skills-root (MANDATORY first) -> design-taste-frontend / baseline-ui / improve-ui\n- Review: code-review-and-quality -> verification-before-completion\n- Deploy: deploy-to-vercel -> vercel-post-deploy-verify\n- Simplify: code-simplification / ponytail\n- Security: security-and-hardening\n\n## agent_KB\n- Read profile/preferences.md and relevant playbooks/ at session start\n- Write valuable conclusions to ~/.vscode/agent_KB/inbox/\n- Never write secrets or one-off debug noise"
+COPILOT_SELECTION = "Follow ~/.vscode/rules/global-*.mdc. UI: shadcn + CSS vars, muted hover not accent, CSS for button hover. Server Actions: 'use server', auth first, Zod validate, userId from session. Same-page state: setState not router.push."
+
+try:
+    with open(settings_path, 'r') as f:
+        settings = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    settings = {}
+
+settings["github.copilot.chat.codeGeneration.instructions"] = [{"text": COPILOT_CODEGEN}]
+settings["github.copilot.chat.editor.selection.instructions"] = [{"text": COPILOT_SELECTION}]
+
+with open(settings_path, 'w') as f:
+    json.dump(settings, f, indent=4, ensure_ascii=False)
+    f.write("\n")
+PYEOF
+
+  echo "vscode: deployed symlinks (rules/skills/agent_KB) + copilot-instructions.md + settings.json"
+}
+
+refresh_project_copilot() {
+  # Refresh .github/copilot-instructions.md in all ~/Documents/code/ projects that already have one
+  local code_dir="${HOME}/Documents/code"
+  local src="${VSCODE_DIR}/copilot-instructions.md"
+  if [[ ! -f "$src" ]]; then
+    echo "warning: no copilot-instructions.md to refresh from" >&2
+    return 0
+  fi
+  local refreshed=0
+  shopt -s nullglob
+  local target
+  for target in "$code_dir"/*/.github/copilot-instructions.md; do
+    [[ -f "$target" ]] || continue
+    cp "$src" "$target"
+    refreshed=$((refreshed + 1))
+  done
+  shopt -u nullglob
+  echo "vscode: refreshed copilot-instructions.md in ${refreshed} project(s)"
+}
+
 main() {
   sync_codeskills
   sync_uiskills
@@ -524,9 +480,10 @@ main() {
   mirror_skills_to_repo
   sync_rules_to_agents
   sync_rules_to_repo
-  sync_rules_to_workbuddy
   deploy_agents_files
   verify_skill_counts
+  sync_vscode_copilot
+  refresh_project_copilot
   if [[ -x "${RULE_REPO}/sync-global-commands.sh" ]]; then
     "${RULE_REPO}/sync-global-commands.sh" || echo "warning: sync-global-commands.sh failed" >&2
   fi
@@ -541,12 +498,11 @@ main() {
   echo "  ui-skills dir    : $UISKILLS_DIR"
   echo "  skills canonical : $CANONICAL_SKILLS"
   echo "  skills global    : $GLOBAL_MIRROR"
-  echo "  skills workbuddy : ${HOME}/.workbuddy/skills"
   echo "  rules canonical  : $CANONICAL_RULES"
   echo "  rules repo mirror: $RULE_REPO/global/"
-  echo "  rules workbuddy  : $WB_RULES_FILE (+ MEMORY.md block)"
   echo "  commands repo    : $RULE_REPO/commands/"
   echo "  sync script      : $SYNC_SCRIPT"
+  echo "  vscode copilot   : $VSCODE_DIR (symlinks + copilot-instructions.md + settings.json)"
 }
 
 main "$@"
