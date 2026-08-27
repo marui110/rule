@@ -2,7 +2,7 @@
 
 | 层级 | 路径 |
 |------|------|
-| 全局（跨项目） | `~/.cursor/rules/global-*.mdc`（见 `global-agent-manifest.mdc`） |
+| 全局（跨项目） | `~/.cursor/rules/global-*.mdc`、`~/.claude/rules/global-*.md` |
 | 全局 Skills | `preview-first-sync`、`shadcn-app-components`、`framer-motion-patterns`、`nextjs-saas-feature-scaffold` |
 | UI Skills（ibelick） | `ui-skills-root` / `npx ui-skills start`（见 `global-ui-skills`） |
 | 本项目 | `.cursor/rules/*.mdc` |

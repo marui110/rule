@@ -26,10 +26,12 @@ SKILL_TARGETS=(
   "${HOME}/.agents/skills"
   "${HOME}/.cursor/skills"
   "${HOME}/.codex/skills"
+  "${HOME}/.trae-cn/skills"
 )
 
 RULE_AGENT_TARGETS=(
   "${HOME}/.claude/rules"
+  "${HOME}/.trae-cn/user_rules"
 )
 
 RULE_REPO_CURSOR="${RULE_REPO}/global/cursor"
@@ -44,6 +46,10 @@ AGENT_DEPLOYS=(
 VSCODE_DIR="${HOME}/.vscode"
 VSCODE_SETTINGS="${HOME}/Library/Application Support/Code/User/settings.json"
 AGENT_KB_DIR="${HOME}/Documents/code/agent_KB"
+
+# Trae Code CN (VSCode-fork by ByteDance)
+TRAE_CN_DIR="${HOME}/.trae-cn"
+TRAE_CN_SETTINGS="${HOME}/Library/Application Support/Trae CN/User/settings.json"
 
 link_skill() {
   local name="$1"
@@ -313,11 +319,13 @@ sync_rules_to_agents() {
     copied=$((copied + 1))
   done
 
-  # prune stale copies no longer in canonical
+  # prune stale copies no longer in canonical.
+  # Only consider global-*.md so user-authored personal rules in target dirs
+  # (e.g. ~/.trae-cn/user_rules/my-note.md) are never deleted.
   shopt -s nullglob
   for target in "${RULE_AGENT_TARGETS[@]}"; do
     local f name keep e
-    for f in "${target}"/*.md; do
+    for f in "${target}"/global-*.md; do
       name="$(basename "$f")"
       keep=0
       for e in "${expected[@]}"; do
@@ -453,6 +461,38 @@ PYEOF
   echo "vscode: deployed symlinks (rules/skills/agent_KB) + copilot-instructions.md + settings.json"
 }
 
+sync_trae_settings() {
+  # Inject AI.rules toggle into Trae Code CN settings.json so project-root
+  # AGENTS.md / CLAUDE.md / CLAUDE.local.md are included in context.
+  # Keys confirmed from Trae app source (workbench.desktop.main.js):
+  #   AI.rules.importAgentsMd  (default true) — write explicit true for robustness
+  #   AI.rules.importClaudeMd  (default false) — must set true
+  local settings_dir
+  settings_dir="$(dirname "$TRAE_CN_SETTINGS")"
+  mkdir -p "$settings_dir"
+
+  python3 - "$TRAE_CN_SETTINGS" <<'PYEOF'
+import json, sys
+
+settings_path = sys.argv[1]
+
+try:
+    with open(settings_path, 'r') as f:
+        settings = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    settings = {}
+
+settings["AI.rules.importAgentsMd"] = True
+settings["AI.rules.importClaudeMd"] = True
+
+with open(settings_path, 'w') as f:
+    json.dump(settings, f, indent=2, ensure_ascii=False)
+    f.write("\n")
+PYEOF
+
+  echo "trae: injected AI.rules toggles (importAgentsMd + importClaudeMd) into settings.json"
+}
+
 refresh_project_copilot() {
   # Refresh .github/copilot-instructions.md in all ~/Documents/code/ projects that already have one
   local code_dir="${HOME}/Documents/code"
@@ -483,6 +523,7 @@ main() {
   deploy_agents_files
   verify_skill_counts
   sync_vscode_copilot
+  sync_trae_settings
   refresh_project_copilot
   if [[ -x "${RULE_REPO}/sync-global-commands.sh" ]]; then
     "${RULE_REPO}/sync-global-commands.sh" || echo "warning: sync-global-commands.sh failed" >&2
@@ -503,6 +544,7 @@ main() {
   echo "  commands repo    : $RULE_REPO/commands/"
   echo "  sync script      : $SYNC_SCRIPT"
   echo "  vscode copilot   : $VSCODE_DIR (symlinks + copilot-instructions.md + settings.json)"
+  echo "  trae code cn     : ${HOME}/.trae-cn (skills + user_rules)"
 }
 
 main "$@"
