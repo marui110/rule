@@ -24,7 +24,6 @@ alwaysApply: true
 |------|------|------|
 | 本机全局 | `~/.claude/skills/` | Cursor / Claude Code 主路径 |
 | 本机全局 | `~/.vscode/skills/`（symlink） | VSCode Copilot 路径 |
-| 本机全局 | `~/.trae-cn/skills/`（symlink） | Trae Code CN 路径 |
 | 本机全局 | `~/.agents/skills/` | 同步安装；`npx skills add <owner/repo> -g -y -a cursor` |
 | Cursor 内置 | `~/.cursor/skills-cursor/` | 系统管理；**禁止**手动写入 |
 
@@ -116,7 +115,6 @@ alwaysApply: true
 3. 全局 skill 读 `~/.claude/skills/<name>/SKILL.md`（或各端 symlink）。
 4. Cursor 内置读 `~/.cursor/skills-cursor/<name>/SKILL.md`。
 5. VSCode Copilot 通过 `~/.vscode/skills/` symlink 访问；项目级 `.github/copilot-instructions.md`（`~/.vscode/deploy-copilot.sh <dir>`）。
-6. Trae Code CN 通过 `~/.trae-cn/skills/` symlink 访问；全局规则 `~/.trae-cn/user_rules/global-*.md`。项目级 `AGENTS.md`/`CLAUDE.md` 需在设置中开启 toggle。
 5. **Process skills 优先**：`brainstorming` / `systematic-debugging` 定方法，再叠加实现类。
 
 ## 启动（每次会话）
