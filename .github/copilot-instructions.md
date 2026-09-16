@@ -122,8 +122,6 @@
 | 新建品味 UI | `design-taste-frontend` |
 | 生产级 UI | `frontend-ui-engineering` |
 | 改版 | `redesign-existing-projects` / `impeccable` |
-| GSAP | `gsap-core` → `gsap-scrolltrigger` / `gsap-react` |
-| Remotion | `remotion-best-practices` → 专项 |
 | Framer Motion | `framer-motion-patterns` |
 | 部署 Vercel | `deploy-to-vercel` / `vercel-post-deploy-verify` |
 | 浏览器测试 | `playwright-skill` / `webapp-testing` |
@@ -141,11 +139,15 @@
 ## agent_KB 协议
 
 - 根目录：`~/.vscode/agent_KB/`（→ `~/Documents/code/agent_KB`）
-- 协议文件：`AGENTS.md`
+- 协议文件：`AGENTS.md`（唯一行为源）
 - **默认可写仅 `inbox/`**；正式区（memory / playbooks / profile）需用户确认
-- 分区：`inbox/`（草稿）、`memory/`（决策/踩坑/复盘）、`playbooks/`（可复用流程）、`profile/`（偏好）、`projects/`（项目索引）
-- 会话开始：读 `profile/preferences.md`、相关 `playbooks/`、对应 `projects/*.md`
-- 有价值结论写入 `inbox/`（除非用户禁止）
+- 分区：`inbox/`、`memory/`、`playbooks/`、`profile/`、`projects/`、`raw/`（只读源）、`_meta/index`（内容目录）
+- 会话开始：读 `_meta/index.md`、`profile/preferences.md`、相关 `playbooks/`、对应 `projects/*.md`
+- 有价值结论 / 查询答案写入 `inbox/`（除非用户禁止）
+- **新建或打开 `~/Documents/code/` 下未挂接仓**：立即  
+  `~/Documents/code/agent_KB/scripts/hook-project.sh <dir>`（创建完整 `AGENTS.md`）
+- 工具备份：`~/Documents/code/rule/agent_KB/README.md`
+- 同步：`~/Documents/code/rule/sync-global-agent-standards.sh`
 
 ## UI Skills 自动启动
 
@@ -155,3 +157,11 @@
 - 隐含 UI：改 Header/Hero/卡片外观、换 banner、调 token/主题色
 
 不自动启动：纯后端 / DB / 鉴权 / CI / 与界面无关的 bugfix。
+
+
+## Skill 自动调用
+
+1. 意图不明 → 读 `using-agent-skills`
+2. 意图明确 → 按 `~/Documents/code/skill/SKILL_ROUTER.md` 选 **1 个 L1 主 skill**，先 Read `SKILL.md` 再动手
+3. UI → 先 `ui-skills-root`；生产报错 → 先 `prod-error-layered-triage`
+4. 禁止同轮多个 L1；完整协议见 Router「自动调用协议」

@@ -24,27 +24,24 @@ alwaysApply: true
 |------|------|------|
 | 本机全局 | `~/.claude/skills/` | Cursor / Claude Code 主路径 |
 | 本机全局 | `~/.vscode/skills/`（symlink） | VSCode Copilot 路径 |
-| 本机全局 | `~/.trae-cn/skills/`（symlink） | Trae Code CN 路径 |
 | 本机全局 | `~/.agents/skills/` | 同步安装；`npx skills add <owner/repo> -g -y -a cursor` |
 | Cursor 内置 | `~/.cursor/skills-cursor/` | 系统管理；**禁止**手动写入 |
 
-完整场景表：`~/Documents/code/skill/SKILL_ROUTER.md`。全量目录：`~/Documents/code/skill/SKILLS_INDEX.md`。
+完整场景表：`~/Documents/code/skill/SKILL_ROUTER.md`（含**自动调用协议**）。全量目录：`~/Documents/code/skill/SKILLS_INDEX.md`。
+
+**自动调用（摘要）**：意图不明 → 读 `using-agent-skills`；意图明确 → 按 Router 读 **1 个 L1 主 skill** 的 `SKILL.md` 再动手；UI → 先 `ui-skills-root`；生产报错 → 先 `prod-error-layered-triage`。**全面 = 路由覆盖全部已装 skill**，不是每轮扫读全部。禁止同轮多个 L1、禁止空转不读 skill。细则与覆盖表：`SKILL_ROUTER.md`。
 
 **meta**：`using-agent-skills`、`evolve-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`。
 
-**工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`debugging-and-error-recovery`、`diagnosing-bugs`、`frontend-ui-engineering`、`frontend-design`、`api-and-interface-design`、`code-review-and-quality`、`code-review-skill`、`code-review`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`、`codebase-design`、`domain-modeling`、`improve-codebase-architecture`、`deploy-to-vercel`、`vercel-post-deploy-verify`。
+**工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`constraint-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`lean-build`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`investigate-first`、`debugging-and-error-recovery`、`diagnosing-bugs`、`surgical-patch`、`safe-refactor`、`migration`、`resolving-merge-conflicts`、`frontend-ui-engineering`、`frontend-design`、`api-and-interface-design`、`code-review-and-quality`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`、`codebase-design`、`domain-modeling`、`improve-codebase-architecture`、`graphify`、`research`、`deploy-to-vercel`、`vercel-post-deploy-verify`、`vercel-cli-with-tokens`、`vercel-optimize`、`vercel-react-best-practices`、`vercel-composition-patterns`、`prod-error-layered-triage`、`runtime-config-source-of-truth`、`encrypted-credential-cross-env-migration`、`local-shell-tooling-portability`。
 
-**视觉 / 设计**：`ui-skills-root`（ibelick/ui-skills 路由）、`baseline-ui`、`improve-ui`、`create-design-md`、`fixing-accessibility`、`fixing-metadata`、`fixing-motion-performance`、`design-taste-frontend`、`design-taste-frontend-v1`、`high-end-visual-design`、`redesign-existing-projects`、`minimalist-ui`、`industrial-brutalist-ui`、`gpt-taste`、`brandkit`、`imagegen-frontend-web`、`imagegen-frontend-mobile`、`image-to-code`、`stitch-design-taste`、`impeccable`、`theme-factory`、`full-output-enforcement`、`apple-design`、`animate`、`improve-animations`、`find-animation-opportunities`。
+**视觉 / 设计**：`ui-skills-root`（ibelick/ui-skills 路由）、`baseline-ui`、`improve-ui`、`create-design-md`、`fixing-accessibility`、`fixing-metadata`、`fixing-motion-performance`、`design-taste-frontend`、`design-review`、`web-design-guidelines`、`redesign-existing-projects`、`impeccable`、`full-output-enforcement`、`framer-motion-patterns`。
 
-**GSAP**：`gsap-core`、`gsap-frameworks`、`gsap-performance`、`gsap-plugins`、`gsap-react`、`gsap-scrolltrigger`、`gsap-timeline`、`gsap-utils`。
+**Caveman**：`caveman`、`caveman-help`、`caveman-compress`、`cavecrew`。
 
-**Remotion**：`remotion-best-practices`、`remotion-create`、`remotion-docs`、`remotion-studio`、`remotion-render`、`remotion-captions`、`remotion-multimedia`、`remotion-maps`、`remotion-markup`、`remotion-interactivity`、`remotion-saas`、`remotion-upgrade`。
+**Matt / grill**：`grilling`、`implement`、`handoff`、`ask-matt`、`teach`、`to-spec`、`to-tickets`、`triage`、`wayfinder`。
 
-**Caveman**：`caveman`、`caveman-help`、`caveman-commit`、`caveman-review`、`caveman-stats`、`caveman-compress`、`cavecrew`。
-
-**Matt / grill**：`grilling`、`grill-me`、`grill-with-docs`、`implement`、`handoff`、`ask-matt`、`teach`、`to-spec`、`to-tickets`、`triage`、`wayfinder`。
-
-**测试 / 工具 / 极简**：`playwright-skill`、`webapp-testing`、`browser-testing-with-devtools`、`web-artifacts-builder`、`ponytail`、`ponytail-review`、`ponytail-audit`、`ponytail-debt`、`ponytail-gain`、`ponytail-help`、`apple-notes`、`pptx`。
+**测试 / 工具 / 极简**：`playwright-skill`、`browser-testing-with-devtools`、`ponytail`、`ponytail-review`、`ponytail-audit`。
 
 **SaaS 沉淀（全局，见 `global-agent-manifest`）**：`preview-first-sync`、`shadcn-app-components`、`framer-motion-patterns`、`nextjs-saas-feature-scaffold`、`saas-tenant-membership`。
 
@@ -69,15 +66,26 @@ alwaysApply: true
 | 加载 / 裁剪上下文 | `context-engineering` |
 | 对照官方文档实现 | `source-driven-development` |
 | 高风险决策对抗审查 | `doubt-driven-development` |
-| 行为变更 / 修 bug | `test-driven-development`（优先于短版 `tdd`） |
+| 行为变更 / 修 bug | `test-driven-development` |
+| 原因不明 / 间歇失败先诊断 | `investigate-first` → 再 `systematic-debugging` |
 | bug / 测试失败先调查 | `systematic-debugging` 或 `debugging-and-error-recovery` |
+| 窄修 / 小行为变更 | `surgical-patch` |
+| 行为保持重构 | `safe-refactor` |
+| 质量契约未写清 | `constraint-driven-development` |
+| 高过度工程风险新功能 | `lean-build` |
 | 声称完成 / 提交 / PR 前验证 | `verification-before-completion` |
+| merge/rebase 冲突中 | `resolving-merge-conflicts` |
+| schema/API/依赖迁移 | `migration` / `deprecation-and-migration` |
+| 代码库地图 / 架构关系 | `graphify` |
+| 一手资料调研落盘 | `research` |
+| 设计批判（URL/截图/组件） | `design-review` |
+| Web Interface Guidelines | `web-design-guidelines` |
+| Vercel token CLI / 成本优化 | `vercel-cli-with-tokens` / `vercel-optimize` |
+| React/Next 性能惯例 | `vercel-react-best-practices` |
 | 隔离分支开发 | `using-git-worktrees` |
 | 合并 / PR 决策 | `finishing-a-development-branch` |
 | 请求 / 处理代码审查 | `requesting-code-review` / `receiving-code-review` |
 | 五轴质量审查（合入前） | `code-review-and-quality` |
-| since-point 双轴审查 | `code-review` |
-| PR / 多语言细则审查 | `code-review-skill` |
 | 完成后精简去重 | `code-simplification` |
 | 过度工程扫描 | `ponytail-review` / `ponytail-audit` |
 | 刻意最简实现 | `ponytail` |
@@ -86,20 +94,21 @@ alwaysApply: true
 | 性能问题 | `performance-optimization` |
 | 架构 / 领域建模 | `codebase-design` / `domain-modeling` |
 | UI 任务入口（必做） | `ui-skills-root` 或 `npx ui-skills start`（见 `global-ui-skills`） |
-| 新建 UI | 先 ui-skills 路由，再 `design-taste-frontend`（非 `-v1`）/ `frontend-design` |
+| 新建 UI | 先 ui-skills 路由，再 `design-taste-frontend`/ `frontend-design` |
 | 生产级 UI | 先 ui-skills 路由，再 `frontend-ui-engineering` |
 | 快速去 AI 味 / 间距 | `baseline-ui` |
 | 审计现有界面 | `improve-ui` |
 | 现有页面升级 | `redesign-existing-projects` → `impeccable`（可叠加 ui-skills） |
-| GSAP / ScrollTrigger | `gsap-core` → `gsap-scrolltrigger` / `gsap-react` |
-| Remotion / 视频合成 | `remotion-best-practices` → `remotion-create` 等专项 |
 | Caveman 口语 / 压缩输出 | `caveman` / `caveman-compress` |
 | Grill 压力测试方案 | `grilling` |
 | Matt implement / handoff | `implement` / `handoff` / `ask-matt` |
-| Apple Notes | `apple-notes` |
 | 部署 Vercel | `deploy-to-vercel` |
 | Vercel Ready 仍 500 / env 方言 | `vercel-post-deploy-verify` |
-| 浏览器冒烟 | `playwright-skill` / `webapp-testing` |
+| 生产脱敏报错定层（#441 / 部署后报错） | `prod-error-layered-triage` → 定层后 `systematic-debugging` |
+| 配置改了不生效 / 多环境对齐 | `runtime-config-source-of-truth` |
+| 加密凭据跨库迁移 | `encrypted-credential-cross-env-migration` |
+| Mac 本机脚本 / CLI 包装 / 代理坑 | `local-shell-tooling-portability` |
+| 浏览器冒烟 | `playwright-skill` / `browser-testing-with-devtools` |
 | API 设计 | `api-and-interface-design` |
 | 提交 / CI / 上线 | `git-workflow-and-versioning` / `ci-cd-and-automation` / `shipping-and-launch` |
 | PR 保活 / 修 CI | `babysit` |
@@ -116,8 +125,7 @@ alwaysApply: true
 3. 全局 skill 读 `~/.claude/skills/<name>/SKILL.md`（或各端 symlink）。
 4. Cursor 内置读 `~/.cursor/skills-cursor/<name>/SKILL.md`。
 5. VSCode Copilot 通过 `~/.vscode/skills/` symlink 访问；项目级 `.github/copilot-instructions.md`（`~/.vscode/deploy-copilot.sh <dir>`）。
-6. Trae Code CN 通过 `~/.trae-cn/skills/` symlink 访问；全局规则 `~/.trae-cn/user_rules/global-*.md`。项目级 `AGENTS.md`/`CLAUDE.md` 需在设置中开启 toggle。
-5. **Process skills 优先**：`brainstorming` / `systematic-debugging` 定方法，再叠加实现类。
+6. **Process skills 优先**：`brainstorming` / `systematic-debugging` 定方法，再叠加实现类。
 
 ## 启动（每次会话）
 
@@ -149,7 +157,7 @@ alwaysApply: true
 5. 修 bug：先 `systematic-debugging`，再 TDD。
 6. GREEN 后 `code-simplification`；过度抽象叠加 `ponytail-review`。
 7. 非平凡决策 `doubt-driven-development`。
-8. Task review：`code-review-skill`。
+8. Task review：。
 
 ## Phase C — 审查
 

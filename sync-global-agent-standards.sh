@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # Sync canonical skills (~/.claude/skills) and rules (~/.cursor/rules) to all agents
-# and mirror rules/agents/commands templates into this repo (Documents/code/rule).
+# and mirror rules/agents/commands + agent_KB tooling into this repo (Documents/code/rule).
 #
 # Skills path mapping:
 #   ~/Documents/code/skill/codeskill/*       →  ~/.claude/skills/*  (rsync)
 #   ~/Documents/code/skill/ui-skills/skills/* →  ~/.claude/skills/*  (symlink)
 #   ~/.claude/skills/*                       →  agent dirs (symlink)
 #   ~/.claude/skills/*                       →  ~/Documents/code/skill/global/* (rsync mirror)
-#   ~/.claude/skills/*                       →  ~/Documents/code/skill/global/* (rsync mirror)
+# agent_KB tooling:
+#   ~/Documents/code/agent_KB/scripts|templates → rule/agent_KB/ (mirror)
+#   rule/agent_KB → restore missing runtime files; install Cursor hooks
 set -euo pipefail
 
 HOME="${HOME:-$HOME}"
@@ -23,10 +25,11 @@ UISKILLS_DIR="${SKILL_REPO}/ui-skills/skills"
 GLOBAL_MIRROR="${SKILL_REPO}/global"
 
 SKILL_TARGETS=(
-  "${HOME}/.agents/skills"
   "${HOME}/.cursor/skills"
   "${HOME}/.codex/skills"
 )
+# NOTE: ~/.agents/skills is the `npx skills` install store (real copies).
+# Do NOT symlink over it from ~/.claude — that caused mass dangling links.
 
 RULE_AGENT_TARGETS=(
   "${HOME}/.claude/rules"
@@ -148,6 +151,44 @@ sync_uiskills() {
   done
 
   echo "uiskills: linked ${linked} skill(s) from ${UISKILLS_DIR} -> ${CANONICAL_SKILLS}"
+}
+
+# Bridge `npx skills` store (~/.agents/skills) into Claude canonical (~/.claude/skills).
+bridge_agents_skills_into_claude() {
+  local agents_dir="${HOME}/.agents/skills"
+  mkdir -p "$CANONICAL_SKILLS"
+  if [[ ! -d "$agents_dir" ]]; then
+    echo "bridge: no $agents_dir — skip"
+    return 0
+  fi
+
+  local linked=0
+  local skipped=0
+  local name dest src
+  for src in "${agents_dir}"/*/; do
+    [[ -d "$src" ]] || continue
+    name="$(basename "$src")"
+    [[ -f "${src}/SKILL.md" ]] || continue
+    dest="${CANONICAL_SKILLS}/${name}"
+    if [[ -L "$dest" ]]; then
+      if [[ -f "${dest}/SKILL.md" ]]; then
+        skipped=$((skipped + 1))
+        continue
+      fi
+      rm -f "$dest"
+    elif [[ -d "$dest" ]]; then
+      if [[ -f "${dest}/SKILL.md" ]]; then
+        skipped=$((skipped + 1))
+        continue
+      fi
+      rm -rf "$dest"
+    elif [[ -e "$dest" ]]; then
+      rm -f "$dest"
+    fi
+    ln -sfn "$src" "$dest"
+    linked=$((linked + 1))
+  done
+  echo "bridge: linked ${linked} agents skill(s) into ${CANONICAL_SKILLS} (skipped existing ${skipped})"
 }
 
 sync_skills() {
@@ -435,8 +476,8 @@ sync_vscode_copilot() {
 import json, sys, os
 
 settings_path = sys.argv[1]
-COPILOT_CODEGEN = "You are a senior engineer following global agent standards shared across Cursor, Claude Code, Codex, and VSCode Copilot.\n\n## Resources (read on demand)\n- Rules: ~/.vscode/rules/global-*.mdc\n- Skills: ~/.vscode/skills/<name>/SKILL.md (150+ skills)\n- Skill router: ~/Documents/code/skill/SKILL_ROUTER.md\n- Knowledge base: ~/.vscode/agent_KB/ (protocol: AGENTS.md; writable: inbox/ only)\n\n## Workflow\n- Project-local rules (AGENTS.md, .cursor/rules/, README.md, package.json) override globals.\n- Non-trivial changes: spec first, then implement, then verify.\n- Phase A (plan): explore -> spec -> task breakdown -> plan\n- Phase B (implement): TDD (red -> green -> refactor) + thin slices; UI tasks start with ui-skills-root\n- Phase C (review): verify against acceptance criteria -> code-review-and-quality -> verification-before-completion\n- Phase G (governance): diagnose -> simplify -> verify (behavior unchanged)\n\n## Next.js SaaS\n- Server Components first; Server Actions over API routes (except webhooks/cron)\n- Server Action rules: 'use server' on top, derive userId from session (never accept as arg), auth on first line, Zod validate, DB queries filter by userId, revalidate after mutation\n- Component layers: components/ui/ (shadcn) -> components/shared/ -> components/{domain}/\n- Personalized pages: force-dynamic; never cache user-data RSC\n\n## Security\n- RLS + app-layer userId filter (double insurance)\n- Zod validate all external input\n- Rate limit by userId + operation type; store in DB/Redis\n- AI quota: deduct after success only\n- Secrets via env, never in code\n\n## Performance\n- Same-page UI state (tabs/filters/pagination): setState + history.replaceState, NEVER router.push\n- Write operations: optimistic UI -> persist -> rollback on failure\n- Merge DB reads (Promise.all or CTE)\n- Auth middleware: local session fast-path, remote refresh only when token expiring\n\n## UI Conventions\n- shadcn + CSS variables; semantic tokens (background, foreground, muted, accent, destructive, border, ring)\n- accent = brand color; destructive = independent red; hover uses muted not accent\n- Typography: ui-text-title / ui-text-section / ui-text-body / ui-text-caption\n- Focus rings visible; aria-label on icon buttons; support prefers-reduced-motion\n- Button hover: CSS only (no scale); list entrance: framer-motion stagger; motion vars in lib/motion.ts\n\n## Skill Routing (read SKILL.md when intent matches)\n- Bug: systematic-debugging -> test-driven-development\n- New feature: spec-driven-development -> writing-plans -> incremental-implementation\n- UI task: ui-skills-root (MANDATORY first) -> design-taste-frontend / baseline-ui / improve-ui\n- Review: code-review-and-quality -> verification-before-completion\n- Deploy: deploy-to-vercel -> vercel-post-deploy-verify\n- Simplify: code-simplification / ponytail\n- Security: security-and-hardening\n\n## agent_KB\n- Read profile/preferences.md and relevant playbooks/ at session start\n- Write valuable conclusions to ~/.vscode/agent_KB/inbox/\n- Never write secrets or one-off debug noise"
-COPILOT_SELECTION = "Follow ~/.vscode/rules/global-*.mdc. UI: shadcn + CSS vars, muted hover not accent, CSS for button hover. Server Actions: 'use server', auth first, Zod validate, userId from session. Same-page state: setState not router.push."
+COPILOT_CODEGEN = "You are a senior engineer following global agent standards shared across Cursor, Claude Code, Codex, and VSCode Copilot.\n\n## Resources (read on demand)\n- Rules: ~/.vscode/rules/global-*.mdc\n- Skills: ~/.vscode/skills/<name>/SKILL.md (150+ skills)\n- Skill router: ~/Documents/code/skill/SKILL_ROUTER.md\n- Knowledge base: ~/.vscode/agent_KB/ (protocol: AGENTS.md; writable: inbox/ only)\n\n## Workflow\n- Project-local rules (AGENTS.md, .cursor/rules/, README.md, package.json) override globals.\n- Non-trivial changes: spec first, then implement, then verify.\n- Phase A (plan): explore -> spec -> task breakdown -> plan\n- Phase B (implement): TDD (red -> green -> refactor) + thin slices; UI tasks start with ui-skills-root\n- Phase C (review): verify against acceptance criteria -> code-review-and-quality -> verification-before-completion\n- Phase G (governance): diagnose -> simplify -> verify (behavior unchanged)\n\n## Next.js SaaS\n- Server Components first; Server Actions over API routes (except webhooks/cron)\n- Server Action rules: 'use server' on top, derive userId from session (never accept as arg), auth on first line, Zod validate, DB queries filter by userId, revalidate after mutation\n- Component layers: components/ui/ (shadcn) -> components/shared/ -> components/{domain}/\n- Personalized pages: force-dynamic; never cache user-data RSC\n\n## Security\n- RLS + app-layer userId filter (double insurance)\n- Zod validate all external input\n- Rate limit by userId + operation type; store in DB/Redis\n- AI quota: deduct after success only\n- Secrets via env, never in code\n\n## Performance\n- Same-page UI state (tabs/filters/pagination): setState + history.replaceState, NEVER router.push\n- Write operations: optimistic UI -> persist -> rollback on failure\n- Merge DB reads (Promise.all or CTE)\n- Auth middleware: local session fast-path, remote refresh only when token expiring\n\n## UI Conventions\n- shadcn + CSS variables; semantic tokens (background, foreground, muted, accent, destructive, border, ring)\n- accent = brand color; destructive = independent red; hover uses muted not accent\n- Typography: ui-text-title / ui-text-section / ui-text-body / ui-text-caption\n- Focus rings visible; aria-label on icon buttons; support prefers-reduced-motion\n- Button hover: CSS only (no scale); list entrance: framer-motion stagger; motion vars in lib/motion.ts\n\n## Skill Routing (read SKILL.md when intent matches)\n- Bug: systematic-debugging -> test-driven-development\n- New feature: spec-driven-development -> writing-plans -> incremental-implementation\n- UI task: ui-skills-root (MANDATORY first) -> design-taste-frontend / baseline-ui / improve-ui\n- Review: code-review-and-quality -> verification-before-completion\n- Deploy: deploy-to-vercel -> vercel-post-deploy-verify\n- Simplify: code-simplification / ponytail\n- Security: security-and-hardening\n\n## agent_KB\n- Protocol: ~/Documents/code/agent_KB/AGENTS.md (writable: inbox/ only)\n- Read _meta/index.md, profile/preferences.md, playbooks/, projects/ at start\n- File valuable answers to inbox/; lint via playbooks/wiki-lint\n- New/unhooked repo under ~/Documents/code/: run ~/Documents/code/agent_KB/scripts/hook-project.sh <dir> immediately (creates full AGENTS.md)\n- Tooling backup: ~/Documents/code/rule/agent_KB/"
+COPILOT_SELECTION = "Follow ~/.vscode/rules/global-*.mdc. UI: shadcn + CSS vars, muted hover not accent, CSS for button hover. Server Actions: 'use server', auth first, Zod validate, userId from session. Same-page state: setState not router.push. New code repos: hook-project.sh for AGENTS.md + agent_KB."
 
 try:
     with open(settings_path, 'r') as f:
@@ -475,9 +516,111 @@ refresh_project_copilot() {
   echo "vscode: refreshed copilot-instructions.md in ${refreshed} project(s)"
 }
 
+# Mirror agent_KB hook scripts/templates into this repo for backup / manual reinstall.
+mirror_agent_kb_tooling() {
+  local dest="${RULE_REPO}/agent_KB"
+  mkdir -p "${dest}/scripts" "${dest}/templates"
+
+  if [[ ! -d "$AGENT_KB_DIR" ]]; then
+    echo "warning: agent_KB missing at $AGENT_KB_DIR — skip tooling mirror" >&2
+    return 0
+  fi
+
+  local f
+  for f in hook-project.sh cursor-auto-hook-agent-kb.sh install-cursor-auto-hook.sh; do
+    if [[ -f "${AGENT_KB_DIR}/scripts/${f}" ]]; then
+      cp "${AGENT_KB_DIR}/scripts/${f}" "${dest}/scripts/${f}"
+      chmod +x "${dest}/scripts/${f}"
+    else
+      echo "warning: missing ${AGENT_KB_DIR}/scripts/${f}" >&2
+    fi
+  done
+
+  if [[ -f "${AGENT_KB_DIR}/_templates/project-agents.md" ]]; then
+    cp "${AGENT_KB_DIR}/_templates/project-agents.md" "${dest}/templates/project-agents.md"
+  fi
+  if [[ -f "${AGENT_KB_DIR}/_templates/project.md" ]]; then
+    cp "${AGENT_KB_DIR}/_templates/project.md" "${dest}/templates/project.md"
+  fi
+  if [[ -f "${AGENT_KB_DIR}/projects/_POINTER_TEMPLATE.md" ]]; then
+    cp "${AGENT_KB_DIR}/projects/_POINTER_TEMPLATE.md" "${dest}/templates/POINTER_TEMPLATE.md"
+  fi
+
+  # Keep README / hooks snippet if already authored in repo; do not overwrite README from empty
+  if [[ ! -f "${dest}/README.md" ]]; then
+    echo "warning: ${dest}/README.md missing — add install docs" >&2
+  fi
+  if [[ ! -f "${dest}/hooks.json.snippet" ]]; then
+    cat >"${dest}/hooks.json.snippet" <<'EOF'
+{
+  "version": 1,
+  "hooks": {
+    "workspaceOpen": [
+      { "command": "./hooks/auto-hook-agent-kb.sh", "timeout": 30 }
+    ],
+    "sessionStart": [
+      { "command": "./hooks/auto-hook-agent-kb.sh", "timeout": 30 }
+    ]
+  }
+}
+EOF
+  fi
+
+  echo "agent_KB: mirrored tooling -> ${dest}/"
+}
+
+# Refresh LaunchAgent daily-sync script from rule/scripts (plist reload only if installer asked).
+deploy_daily_sync_agent() {
+  local src="${RULE_REPO}/scripts/daily-sync.sh"
+  local dest_dir="${HOME}/Library/Application Support/agent-standards-sync"
+  local dest="${dest_dir}/daily-sync.sh"
+  if [[ ! -f "$src" ]]; then
+    echo "warning: missing $src" >&2
+    return 0
+  fi
+  mkdir -p "$dest_dir" "${HOME}/Library/Logs/agent-standards-sync"
+  cp "$src" "$dest"
+  chmod +x "$dest"
+  echo "daily-sync: refreshed $dest"
+}
+
+# Ensure runtime scripts exist (restore from rule backup if needed) and install Cursor hooks.
+deploy_agent_kb_cursor_hook() {
+  mkdir -p "${AGENT_KB_DIR}/scripts" "${AGENT_KB_DIR}/_templates"
+
+  local backup="${RULE_REPO}/agent_KB"
+  local f
+  for f in hook-project.sh cursor-auto-hook-agent-kb.sh install-cursor-auto-hook.sh; do
+    if [[ ! -f "${AGENT_KB_DIR}/scripts/${f}" && -f "${backup}/scripts/${f}" ]]; then
+      cp "${backup}/scripts/${f}" "${AGENT_KB_DIR}/scripts/${f}"
+      echo "agent_KB: restored scripts/${f} from rule backup"
+    fi
+    if [[ -f "${AGENT_KB_DIR}/scripts/${f}" ]]; then
+      chmod +x "${AGENT_KB_DIR}/scripts/${f}"
+    fi
+  done
+
+  if [[ ! -f "${AGENT_KB_DIR}/_templates/project-agents.md" && -f "${backup}/templates/project-agents.md" ]]; then
+    cp "${backup}/templates/project-agents.md" "${AGENT_KB_DIR}/_templates/project-agents.md"
+    echo "agent_KB: restored _templates/project-agents.md from rule backup"
+  fi
+
+  local installer="${AGENT_KB_DIR}/scripts/install-cursor-auto-hook.sh"
+  if [[ -x "$installer" ]]; then
+    "$installer" || echo "warning: install-cursor-auto-hook.sh failed" >&2
+  elif [[ -x "${backup}/scripts/install-cursor-auto-hook.sh" ]]; then
+    # Point installer at live agent_KB via AGENT_KB env
+    AGENT_KB="$AGENT_KB_DIR" "${backup}/scripts/install-cursor-auto-hook.sh" \
+      || echo "warning: backup install-cursor-auto-hook.sh failed" >&2
+  else
+    echo "warning: no install-cursor-auto-hook.sh found" >&2
+  fi
+}
+
 main() {
   sync_codeskills
   sync_uiskills
+  bridge_agents_skills_into_claude
   sync_skills
   mirror_skills_to_repo
   sync_rules_to_agents
@@ -486,6 +629,9 @@ main() {
   verify_skill_counts
   sync_vscode_copilot
   refresh_project_copilot
+  mirror_agent_kb_tooling
+  deploy_agent_kb_cursor_hook
+  deploy_daily_sync_agent
   if [[ -x "${RULE_REPO}/sync-global-commands.sh" ]]; then
     "${RULE_REPO}/sync-global-commands.sh" || echo "warning: sync-global-commands.sh failed" >&2
   fi
@@ -502,6 +648,8 @@ main() {
   echo "  skills global    : $GLOBAL_MIRROR"
   echo "  rules canonical  : $CANONICAL_RULES"
   echo "  rules repo mirror: $RULE_REPO/global/"
+  echo "  agent_KB tooling : $RULE_REPO/agent_KB/"
+  echo "  daily-sync       : $HOME/Library/Application Support/agent-standards-sync/daily-sync.sh"
   echo "  commands repo    : $RULE_REPO/commands/"
   echo "  sync script      : $SYNC_SCRIPT"
   echo "  vscode copilot   : $VSCODE_DIR (symlinks + copilot-instructions.md + settings.json)"

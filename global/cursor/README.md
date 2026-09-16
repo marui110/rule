@@ -51,7 +51,6 @@
 | Claude Code | 同上 | `~/.claude/skills/` |
 | Codex | `~/.codex/AGENTS.md` | `~/.codex/skills/` |
 | VSCode Copilot | `~/.vscode/copilot-instructions.md` | `~/.vscode/skills/` |
-| Trae Code CN | `~/.trae-cn/user_rules/global-*.md` | `~/.trae-cn/skills/` |
 
 MCP 同步：`~/Documents/code/rule/sync-global-mcp.sh --import`（详见 `~/Documents/code/rule/mcp/README.md`）。
 

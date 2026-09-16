@@ -1,5 +1,5 @@
 ---
-description: 跨 Agent 全局规范入口 — Cursor / Claude Code / Codex / VSCode Copilot / Trae Code CN 路径与优先级
+description: 跨 Agent 全局规范入口 — Cursor / Claude Code / Codex / VSCode Copilot 路径与优先级
 alwaysApply: true
 ---
 
@@ -13,9 +13,8 @@ alwaysApply: true
 | **Claude Code** | `~/.claude/CLAUDE.md` + 读 `~/.cursor/rules/global-*.mdc` | `<repo>/AGENTS.md`、`<repo>/CLAUDE.md`、`<repo>/.cursor/rules/` |
 | **Codex** | `~/.codex/AGENTS.md` | `<repo>/AGENTS.md` |
 | **VSCode Copilot** | `~/.vscode/copilot-instructions.md` + settings.json | `<repo>/.github/copilot-instructions.md` |
-| **Trae Code CN** | `~/.trae-cn/user_rules/global-*.md` | `<repo>/.trae/rules/*.md`、`<repo>/AGENTS.md`（需开启 toggle） |
 
-入口模板权威源：`~/Documents/code/rule/agents/`（`claude-CLAUDE.md` / `codex-AGENTS.md` / `vscode-copilot-instructions.md` / `trae-AGENTS.md`），由同步脚本部署（`trae-AGENTS.md` 仅供参考，不部署）。
+入口模板权威源：`~/Documents/code/rule/agents/`（`claude-CLAUDE.md` / `codex-AGENTS.md` / `vscode-copilot-instructions.md`），由同步脚本部署。
 
 ## Skill 路径
 
@@ -34,7 +33,6 @@ alwaysApply: true
 | **Claude Code** | `~/.claude/skills/<name>/SKILL.md` |
 | **Codex** | `~/.codex/skills/`（symlink） |
 | **VSCode Copilot** | `~/.vscode/skills/`（symlink） |
-| **Trae Code CN** | `~/.trae-cn/skills/`（symlink） |
 | **Agents 镜像** | `~/.agents/skills/`（symlink） |
 
 安装/同步：
@@ -60,6 +58,10 @@ alwaysApply: true
 | `nextjs-saas-feature-scaffold` | 新 feature 脚手架 |
 | `saas-tenant-membership` | 租户成员关系 |
 | `evolve-skills` | 全局 skill 自进化（纠正 / 踩坑写回） |
+| `prod-error-layered-triage` | 生产报错四层分流（缓存/env/数据/构建） |
+| `runtime-config-source-of-truth` | 运行时配置真相来源 + 多环境实例级覆盖 |
+| `encrypted-credential-cross-env-migration` | 加密凭据跨库迁移四步套路 |
+| `local-shell-tooling-portability` | macOS bash 3.2 / zsh / 代理脚本可移植性 |
 
 ## UI Skills（ibelick/ui-skills）
 
@@ -91,14 +93,35 @@ alwaysApply: true
 所有智能体会话均挂载同一知识库（唯一路径，无 symlink / 旧名兼容）：
 
 - 根目录：`/Users/marui/Documents/code/agent_KB`
-- 协议：`/Users/marui/Documents/code/agent_KB/AGENTS.md`
+- 协议：`/Users/marui/Documents/code/agent_KB/AGENTS.md`（**唯一行为源**）
 - 默认可写：仅 `inbox/`；正式区（memory / playbooks / profile）需用户确认后再写
-- 业务仓：`.cursor/rules/agent_KB-pointer.mdc` + `AGENTS.md` 短指针绑定 `projects/<repo>.md`
+- 业务仓：`.cursor/rules/agent_KB-pointer.mdc` + `AGENTS.md` 绑定 `projects/<repo>.md`
+- 查询：先读 `_meta/index.md`；有价值答案**回写 inbox**
+- 健康检查：触发语「体检 wiki」→ `_meta/lint` / `playbooks/wiki-lint`
+- 源材料：`raw/` 只读；编译进 wiki
+- **新建 / 打开未挂接的 `~/Documents/code/<repo>`**：立即跑  
+  `~/Documents/code/agent_KB/scripts/hook-project.sh <dir>`  
+  （用 `_templates/project-agents.md` 创建完整 `AGENTS.md`，不必先问用户）
+- Cursor 自动挂接：`workspaceOpen` / `sessionStart` hook（安装见下）
+- 工具备份与手动安装：`~/Documents/code/rule/agent_KB/README.md`
+
+```bash
+# 挂接单个项目
+~/Documents/code/agent_KB/scripts/hook-project.sh ~/Documents/code/<repo>
+
+# 安装 Cursor 自动创建 AGENTS.md（也可由 sync 脚本部署）
+~/Documents/code/agent_KB/scripts/install-cursor-auto-hook.sh
+
+# 全量同步（镜像备份到 rule/ + 部署各 Agent 入口 + Cursor hook）
+~/Documents/code/rule/sync-global-agent-standards.sh
+```
 
 ## 会话启动
 
-0. **按用户意图自动读对应 `SKILL.md`**（见 `SKILL_ROUTER.md` / `global-agent-workflow`），不必等用户点名
+0. **按用户意图自动读对应 `SKILL.md`**（先 `SKILL_ROUTER.md`「自动调用协议」 / `using-agent-skills`），不必等用户点名；**全面 = 路由覆盖全部已装 skill**，同轮只 Read 1 个 L1（+ 可选门控/审查）
 1. 遵循 `global-agent-workflow.mdc`
-2. 挂载并遵守 `agent_KB` 协议；读项目 `AGENTS.md` / `CLAUDE.md` + `.cursor/rules/`（有指针时先读对应 `projects/` 页）
-3. **识别到设计意图时自动**走 `global-ui-skills`（`npx ui-skills start` / `ui-skills-root`）
-4. 按场景读对应 `SKILL.md`
+2. 挂载并遵守 `agent_KB` 协议；读 `_meta/index`、`profile/preferences.md`、相关 `playbooks/`、对应 `projects/*.md`
+3. 若当前仓在 `~/Documents/code/` 且尚未挂接 → **直接**跑 `hook-project.sh`
+4. **识别到设计意图时自动**走 `global-ui-skills`（`npx ui-skills start` / `ui-skills-root`）
+5. 按场景读对应 `SKILL.md`（本轮仅 1 个 L1 主流程 skill）
+6. 覆盖自检：`python3 ~/Documents/code/skill/scripts/check-skill-coverage.py`

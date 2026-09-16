@@ -21,8 +21,8 @@
 
 1. 场景不明 → 读 `using-agent-skills`
 2. 设计 / UI → `ui-skills-root`（或 `npx ui-skills start`）
-3. 再读场景表命中的主 skill（同一轮最多一个主流程 skill）
-4. 细则以 `SKILL.md` 为准；完整表见 `SKILL_ROUTER.md`
+3. 再读 `SKILL_ROUTER.md` 命中的 **1 个**主 skill（同一轮最多一个 L1）
+4. 细则以 `SKILL.md` 为准；完整表与自动调用协议见 `SKILL_ROUTER.md`
 
 ## 自动触发表（高频）
 
@@ -31,13 +31,9 @@
 | 界面 / 页面 / 组件 / 去 AI 味 / 设计稿 | `ui-skills-root` → `baseline-ui` / `improve-ui` / `design-taste-frontend` |
 | 修 bug / 测试红 | `systematic-debugging` → `test-driven-development` |
 | 新功能 / 大改 | `brainstorming` 或 `spec-driven-development` → `writing-plans` |
-| Remotion / 视频合成 | `remotion-best-practices` → `remotion-create` / 专项 |
-| GSAP / ScrollTrigger | `gsap-core` → `gsap-scrolltrigger` / `gsap-react` |
 | 合入前审查 | `code-review-and-quality` |
-| since-point 双轴审查 | `code-review` |
 | 写回 / 进化 skill | `evolve-skills` |
-| 极简口语 / caveman | `caveman`（help/review/commit 见套件） |
-| Apple Notes | `apple-notes` |
+| 极简口语 / caveman | `caveman`（`caveman-help` / `caveman-compress` / `cavecrew`） |
 | 部署 Vercel | `deploy-to-vercel` |
 | 压力测试方案 | `grilling` |
 | Matt 流程 implement/handoff | `implement` / `handoff` / `ask-matt` |
@@ -50,5 +46,14 @@
 
 @/Users/marui/Documents/code/agent_KB/AGENTS.md
 
-所有会话均挂载：`/Users/marui/Documents/code/agent_KB`（协议：`AGENTS.md`）。  
-默认可写仅 `inbox/`；正式区需用户确认。业务仓指针：`.cursor/rules/agent_KB-pointer.mdc`。
+所有会话均挂载：`/Users/marui/Documents/code/agent_KB`（协议：`AGENTS.md` 为唯一行为源）。
+
+- 默认可写仅 `inbox/`；正式区需用户确认晋升
+- 查询先读 `_meta/index.md`；有价值结论回写 `inbox/`
+- 体检：用户说「体检 wiki」→ `playbooks/wiki-lint`
+- 业务仓指针：`.cursor/rules/agent_KB-pointer.mdc`
+- **在 `~/Documents/code/` 新建或打开未挂接仓库时**：立即执行  
+  `~/Documents/code/agent_KB/scripts/hook-project.sh <绝对路径>`  
+  （自动创建完整 `AGENTS.md`，不必先问）
+- 工具备份 / 手动安装：`~/Documents/code/rule/agent_KB/README.md`
+- 全量同步：`~/Documents/code/rule/sync-global-agent-standards.sh`

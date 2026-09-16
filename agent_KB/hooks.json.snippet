@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "workspaceOpen": [
+      {
+        "command": "./hooks/auto-hook-agent-kb.sh",
+        "timeout": 30
+      }
+    ],
+    "sessionStart": [
+      {
+        "command": "./hooks/auto-hook-agent-kb.sh",
+        "timeout": 30
+      }
+    ]
+  }
+}

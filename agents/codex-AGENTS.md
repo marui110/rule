@@ -25,8 +25,6 @@ Git 全量备份：`~/Documents/code/skill/global/`
 | 界面 / 去 AI 味 / 设计 | `ui-skills-root`（或 `npx ui-skills start`） |
 | 修 bug | `systematic-debugging` → `test-driven-development` |
 | 新功能 | `spec-driven-development` / `writing-plans` |
-| Remotion | `remotion-best-practices` |
-| GSAP | `gsap-core` |
 | 合入前审查 | `code-review-and-quality` |
 | 写回 skill | `evolve-skills` |
 | caveman | `caveman` |
@@ -36,14 +34,30 @@ Git 全量备份：`~/Documents/code/skill/global/`
 细则与完整场景表：`~/Documents/code/skill/SKILL_ROUTER.md`。  
 读 skill：`~/.codex/skills/<name>/SKILL.md`。
 
-**同主题优先**：`test-driven-development`（非短 `tdd`）；`design-taste-frontend`（非 `-v1`）；UI 先 ui-skills。
+**同主题优先**：`test-driven-development``design-taste-frontend`；UI 先 ui-skills。
+
+## Skill 自动调用
+
+1. 意图不明 → 读 `using-agent-skills`
+2. 意图明确 → 按 `~/Documents/code/skill/SKILL_ROUTER.md` 选 **1 个 L1 主 skill**，先 Read `SKILL.md` 再动手
+3. UI → 先 `ui-skills-root`；生产报错 → 先 `prod-error-layered-triage`
+4. 禁止同轮多个 L1；完整协议见 Router「自动调用协议」
 
 ## 个人知识库（agent_KB）
 
 @/Users/marui/Documents/code/agent_KB/AGENTS.md
 
-所有会话均挂载：`/Users/marui/Documents/code/agent_KB`（协议：`AGENTS.md`）。  
-默认可写仅 `inbox/`；正式区需用户确认。业务仓指针：`.cursor/rules/agent_KB-pointer.mdc`。
+所有会话均挂载：`/Users/marui/Documents/code/agent_KB`（协议：`AGENTS.md` 为唯一行为源）。
+
+- 默认可写仅 `inbox/`；正式区需用户确认晋升
+- 查询先读 `_meta/index.md`；有价值结论回写 `inbox/`
+- 体检：用户说「体检 wiki」→ `playbooks/wiki-lint`
+- 业务仓指针：`.cursor/rules/agent_KB-pointer.mdc`
+- **在 `~/Documents/code/` 新建或打开未挂接仓库时**：立即执行  
+  `~/Documents/code/agent_KB/scripts/hook-project.sh <绝对路径>`  
+  （自动创建完整 `AGENTS.md`，不必先问）
+- 工具备份 / 手动安装：`~/Documents/code/rule/agent_KB/README.md`
+- 全量同步：`~/Documents/code/rule/sync-global-agent-standards.sh`
 
 ## Codex 项目脚手架
 

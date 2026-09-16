@@ -59,10 +59,20 @@
 更新：
 
 ```bash
-npx skills add ibelick/ui-skills -g -y
-# 或 git -C ~/Documents/code/skill/ui-skills pull
+# 手动立刻更新上游 + 部署到各 Agent
+~/Documents/code/rule/daily-sync-agent-standards.sh
+
+# 或分步
+npx skills add ibelick/ui-skills -g -y   # 可选；日常由 daily-sync 经 .git-upstream 更新 skills/
 ~/Documents/code/rule/sync-global-agent-standards.sh
 ```
+
+**定时（每天 09:00）**：LaunchAgent `com.user.agent-standards-daily-sync`  
+- 脚本：`~/Library/Application Support/agent-standards-sync/daily-sync.sh`（权威源 `scripts/daily-sync.sh`）  
+- 会先拉 ui-skills 上游 / skill monorepo，再跑全量 sync  
+- 安装/重载：`~/Documents/code/rule/scripts/install-daily-sync.sh`  
+- 若后台报 `Operation not permitted`：给 `/bin/bash` 开「完全磁盘访问权限」  
+- 日志：`~/Library/Logs/agent-standards-sync/`
 
 ## Skills 自进化
 
@@ -77,6 +87,11 @@ npx skills add ibelick/ui-skills -g -y
 ## 个人知识库
 
 - 根目录：`/Users/marui/Documents/code/agent_KB`
-- 协议：`/Users/marui/Documents/code/agent_KB/AGENTS.md`
+- 协议：`/Users/marui/Documents/code/agent_KB/AGENTS.md`（唯一行为源）
 - 本项目页：`/Users/marui/Documents/code/agent_KB/projects/rule.md`
 - 写入：仅 `inbox/`；正式区需用户确认晋升
+- 工具备份 / Cursor 自动挂接：`agent_KB/`（本仓）+ `scripts/hook-project.sh`
+- 新业务仓：`~/Documents/code/agent_KB/scripts/hook-project.sh <dir>` 创建完整 `AGENTS.md`
+- 安装自动 hook：`~/Documents/code/agent_KB/scripts/install-cursor-auto-hook.sh`（同步脚本也会部署）
+
+详见 `agent_KB/README.md`。
