@@ -29,21 +29,21 @@ alwaysApply: true
 
 完整场景表：`~/Documents/code/skill/SKILL_ROUTER.md`（含**自动调用协议**）。全量目录：`~/Documents/code/skill/SKILLS_INDEX.md`。
 
-**自动调用（摘要）**：意图不明 → 读 `using-agent-skills`；意图明确 → 按 Router 读 **1 个 L1 主 skill** 的 `SKILL.md` 再动手；UI → 先 `ui-skills-root`；生产报错 → 先 `prod-error-layered-triage`。**全面 = 路由覆盖全部已装 skill**，不是每轮扫读全部。禁止同轮多个 L1、禁止空转不读 skill。细则与覆盖表：`SKILL_ROUTER.md`。
+**自动调用（摘要）**：意图不明 → 读 `using-agent-skills`；意图明确 → 按 Router 读 **1 个 L1** 再动手；UI → **默认栈** `ui-skills-root` → `baseline-ui`/`improve-ui`（可选叠 `better-interface`）；营销 → `product-marketing`；生产报错 → `prod-error-layered-triage`。营销短名与大改版视觉 skill 为 **L3 点名**。全面 = 路由覆盖，不是每轮扫读。细则：`SKILL_ROUTER.md`。
 
-**meta**：`using-agent-skills`、`evolve-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`。
+**meta**：`using-agent-skills`、`evolve-skills`、`brainstorming`、`writing-plans`、`executing-plans`、`subagent-driven-development`、`dispatching-parallel-agents`、`test-driven-development`、`systematic-debugging`、`verification-before-completion`、`using-git-worktrees`、`requesting-code-review`、`receiving-code-review`、`finishing-a-development-branch`、`writing-skills`、`context-mode`（大工具输出沙箱；`ctx-doctor`/`ctx-index`/`ctx-search`/`ctx-stats` 为 L3）、`context-engineering`。
 
-**工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`constraint-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`lean-build`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`investigate-first`、`debugging-and-error-recovery`、`diagnosing-bugs`、`surgical-patch`、`safe-refactor`、`migration`、`resolving-merge-conflicts`、`frontend-ui-engineering`、`frontend-design`、`api-and-interface-design`、`code-review-and-quality`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`、`codebase-design`、`domain-modeling`、`improve-codebase-architecture`、`graphify`、`research`、`deploy-to-vercel`、`vercel-post-deploy-verify`、`vercel-cli-with-tokens`、`vercel-optimize`、`vercel-react-best-practices`、`vercel-composition-patterns`、`prod-error-layered-triage`、`runtime-config-source-of-truth`、`encrypted-credential-cross-env-migration`、`local-shell-tooling-portability`。
+**工程生命周期**：`interview-me`、`idea-refine`、`spec-driven-development`、`constraint-driven-development`、`planning-and-task-breakdown`、`incremental-implementation`、`lean-build`、`context-engineering`、`source-driven-development`、`doubt-driven-development`、`investigate-first`、`debugging-and-error-recovery`、`diagnosing-bugs`、`surgical-patch`、`safe-refactor`、`migration`、`resolving-merge-conflicts`、`frontend-ui-engineering`、`api-and-interface-design`、`code-review-and-quality`、`code-simplification`、`security-and-hardening`、`performance-optimization`、`git-workflow-and-versioning`、`ci-cd-and-automation`、`deprecation-and-migration`、`documentation-and-adrs`、`observability-and-instrumentation`、`shipping-and-launch`、`codebase-design`、`domain-modeling`、`improve-codebase-architecture`、`graphify`、`research`、`deploy-to-vercel`、`vercel-post-deploy-verify`、`vercel-cli-with-tokens`、`vercel-optimize`、`vercel-react-best-practices`、`vercel-composition-patterns`、`prod-error-layered-triage`、`runtime-config-source-of-truth`、`encrypted-credential-cross-env-migration`、`local-shell-tooling-portability`。
 
-**视觉 / 设计**：`ui-skills-root`（ibelick/ui-skills 路由）、`baseline-ui`、`improve-ui`、`create-design-md`、`fixing-accessibility`、`fixing-metadata`、`fixing-motion-performance`、`design-taste-frontend`、`design-review`、`web-design-guidelines`、`redesign-existing-projects`、`impeccable`、`full-output-enforcement`、`framer-motion-patterns`。
+**视觉 / 设计（默认栈）**：`ui-skills-root` → `baseline-ui` / `improve-ui` → 可选 `better-interface`（或单项 `better-*`）；`create-design-md`、`fixing-accessibility`、`fixing-metadata`、`fixing-motion-performance`、`design-review`、`web-design-guidelines`、`framer-motion-patterns`、`frontend-ui-engineering`。**L3 点名**：`impeccable`、`design-taste-frontend`、`redesign-existing-projects`、`frontend-design`、`interface-review`、`break`、`variant`、`explain-interface`。
 
-**Caveman**：`caveman`、`caveman-help`、`caveman-compress`、`cavecrew`。
-
-**Matt / grill**：`grilling`、`implement`、`handoff`、`ask-matt`、`teach`、`to-spec`、`to-tickets`、`triage`、`wayfinder`。
+**Caveman / Matt / grill**：已卸载；禁止调用。
 
 **测试 / 工具 / 极简**：`playwright-skill`、`browser-testing-with-devtools`、`ponytail`、`ponytail-review`、`ponytail-audit`。
 
-**SaaS 沉淀（全局，见 `global-agent-manifest`）**：`preview-first-sync`、`shadcn-app-components`、`framer-motion-patterns`、`nextjs-saas-feature-scaffold`、`saas-tenant-membership`。
+**SaaS 沉淀**：`preview-first-sync`、`shadcn-app-components`、`framer-motion-patterns`、`nextjs-saas-feature-scaffold`、`saas-tenant-membership`。
+
+**营销（coreyhaines31）**：入口 `product-marketing`；计划 `marketing-plan` / `marketing-ideas`；文案/转化/SEO `copywriting` / `cro` / `seo-audit`。**L3 短名**：`ads` · `analytics` · `emails` · `image` · `launch` · `pricing` · `schema` · `signup` · `social` · `video` 等（见 Router）。已卸：`marketing-council` · `directory-submissions`。
 
 **Cursor 内置**：`review-bugbot`、`review-security`、`babysit`、`split-to-prs`、`canvas`、`create-rule`、`create-skill`、`create-hook`、`create-subagent`、`automate`、`loop`、`shell`、`sdk`、`statusline`、`update-cursor-settings`、`update-cli-config`、`onboard`、`migrate-to-skills`、`review`。
 
@@ -64,6 +64,11 @@ alwaysApply: true
 | 2+ 独立任务并行 | `dispatching-parallel-agents` |
 | 薄切片实现 | `incremental-implementation` |
 | 加载 / 裁剪上下文 | `context-engineering` |
+| 大日志/测试输出/依赖树进沙箱 | `context-mode`（MCP `context-mode`；诊断等用 `ctx-doctor` 等） |
+| 营销立项 / ICP | `product-marketing` |
+| 营销计划 / 点子 | `marketing-plan` / `marketing-ideas` |
+| 营销文案 / CRO / SEO | `copywriting` / `cro` / `seo-audit` |
+| 产品 GTM 发布（非工程上线） | `launch` |
 | 对照官方文档实现 | `source-driven-development` |
 | 高风险决策对抗审查 | `doubt-driven-development` |
 | 行为变更 / 修 bug | `test-driven-development` |
@@ -94,14 +99,12 @@ alwaysApply: true
 | 性能问题 | `performance-optimization` |
 | 架构 / 领域建模 | `codebase-design` / `domain-modeling` |
 | UI 任务入口（必做） | `ui-skills-root` 或 `npx ui-skills start`（见 `global-ui-skills`） |
-| 新建 UI | 先 ui-skills 路由，再 `design-taste-frontend`/ `frontend-design` |
-| 生产级 UI | 先 ui-skills 路由，再 `frontend-ui-engineering` |
-| 快速去 AI 味 / 间距 | `baseline-ui` |
-| 审计现有界面 | `improve-ui` |
-| 现有页面升级 | `redesign-existing-projects` → `impeccable`（可叠加 ui-skills） |
-| Caveman 口语 / 压缩输出 | `caveman` / `caveman-compress` |
-| Grill 压力测试方案 | `grilling` |
-| Matt implement / handoff | `implement` / `handoff` / `ask-matt` |
+| 新建 / 审计 UI（默认栈） | `baseline-ui` / `improve-ui`；细则叠 `better-interface` |
+| 大改版 / 品味重建（L3 点名） | `redesign-existing-projects` / `impeccable` / `design-taste-frontend` |
+| 跨学科界面 polish | `better-interface`（可再叠单项 `better-*`） |
+| 排版 / 色 / 布局 / 文案 | `better-typography` / `better-colors` / `better-layout` / `better-writing` |
+| 无障碍细则 | `better-accessibility`（或 ui-skills `fixing-accessibility`） |
+| 变更界面审查 / 压测 / 变体（L3） | `interface-review` / `break` / `variant` / `explain-interface` |
 | 部署 Vercel | `deploy-to-vercel` |
 | Vercel Ready 仍 500 / env 方言 | `vercel-post-deploy-verify` |
 | 生产脱敏报错定层（#441 / 部署后报错） | `prod-error-layered-triage` → 定层后 `systematic-debugging` |
@@ -153,7 +156,7 @@ alwaysApply: true
 1. `subagent-driven-development`（2+ 独立子任务用 `dispatching-parallel-agents`）。
 2. `incremental-implementation`：每次交付可验证的一小步。
 3. `test-driven-development`：失败测试 → 最小实现 → 全绿 → 重构。
-4. UI 子任务：**先** `ui-skills-root` / `npx ui-skills start`，再按需叠加 `frontend-ui-engineering` / `design-taste-frontend` / `redesign-existing-projects` / `baseline-ui`。
+4. UI 子任务：**默认栈** `ui-skills-root` → `baseline-ui` / `improve-ui`，可选叠 `better-interface` / `frontend-ui-engineering`；`impeccable` / `design-taste-frontend` / `redesign-existing-projects` 仅 L3 点名。
 5. 修 bug：先 `systematic-debugging`，再 TDD。
 6. GREEN 后 `code-simplification`；过度抽象叠加 `ponytail-review`。
 7. 非平凡决策 `doubt-driven-development`。

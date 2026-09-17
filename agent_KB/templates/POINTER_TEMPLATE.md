@@ -22,7 +22,7 @@
 - 根目录：`/Users/marui/Documents/code/agent_KB`
 - 协议：`/Users/marui/Documents/code/agent_KB/AGENTS.md`
 - 本项目页：`/Users/marui/Documents/code/agent_KB/projects/<repo-name>.md`
-- 写入：仅 `inbox/`；正式区需用户确认晋升
+- 写入：默认可写 `inbox/`；通用 → memory 可同轮自动晋升；新建 playbook / profile / 项目级须确认
 ```
 
 首次挂接时，在知识库用 `_templates/project.md` 创建对应 `projects/<repo-name>.md`，并更新 [[_meta/index]]。

@@ -51,7 +51,8 @@ npx ui-skills get <slug>
 1. **项目本地** `AGENTS.md` / `.cursor/rules/` / 设计 token（最高）
 2. 全局 `global-ui-conventions` / `global-motion-conventions`
 3. **ui-skills** 路由出的 skill（含 `baseline-ui` 等）
-4. 其它视觉 skill（`design-taste-frontend`、`impeccable`、`frontend-ui-engineering` 等）
+4. jakubkrehel `better-interface`（或单项 `better-*`）作 L2 细则
+5. 其它视觉 skill（`impeccable`、`design-taste-frontend`、`redesign-existing-projects` 等）→ **L3 用户点名**
 
 冲突时：不引入与项目栈冲突的新基元（例如项目已是 Radix/shadcn，不要强行换成 Base UI）；动效仍遵守 `global-motion-conventions`（集中 `lib/motion.ts`、reduced-motion）。
 
@@ -62,16 +63,36 @@ npx ui-skills get <slug>
 | UI 任务入口 / 路由 | `ui-skills-root` 或 `npx ui-skills start` |
 | 快速去 AI 味 / 间距层级 | `baseline-ui` |
 | 审计现有界面并出计划 | `improve-ui` |
+| 跨学科 polish（L2） | `better-interface` |
 | 生成 DESIGN.md | `create-design-md` |
 | 无障碍修复 | `fixing-accessibility` |
 | SEO / metadata | `fixing-metadata` |
 | 动效性能 | `fixing-motion-performance` |
+| 大改版（L3 点名） | `impeccable` / `design-taste-frontend` / `redesign-existing-projects` |
+
+## jakubkrehel/skills（L2 叠加）
+
+源：https://github.com/jakubkrehel/skills · 运行时：`~/.agents/skills/` → bridge → `~/.claude/skills/` · 镜像：`~/Documents/code/skill/global/`
+
+先走上方 ui-skills 默认栈后，按意图叠加（同轮总 Read skill ≤3）：
+
+| 场景 | Skill |
+|------|--------|
+| 跨 a11y·布局·文案·字·色·UI 一次审 | `better-interface` |
+| UI 细节 polish | `better-ui` |
+| 排版 | `better-typography` |
+| 色系统 / 对比度 | `better-colors` |
+| 布局结构 | `better-layout` |
+| 无障碍细则 | `better-accessibility` |
+| 产品文案 | `better-writing` |
+| 变更 diff 审查 / 压测 / 变体 / 逆向解释（L3） | `interface-review` / `break` / `variant` / `explain-interface` |
 
 ## 安装与同步
 
 ```bash
 npx skills add ibelick/ui-skills -g -y
+npx skills add jakubkrehel/skills -g -y -a cursor
 ~/Documents/code/rule/sync-global-agent-standards.sh
 ```
 
-权威副本：`~/Documents/code/skill/ui-skills/skills/<name>` → `~/.claude/skills/`。
+权威副本：`~/Documents/code/skill/ui-skills/skills/<name>` → `~/.claude/skills/`；jakubkrehel 经 `~/.agents/skills` bridge 后镜像进 `global/`。

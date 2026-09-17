@@ -31,13 +31,14 @@
 ~/Documents/code/rule/sync-global-commands.sh
 ```
 
-**同步 MCP（Cursor → Claude / Codex）：**
+**同步 MCP（canonical → Cursor / Claude / Codex / VS Code）：**
 
 ```bash
 ~/Documents/code/rule/sync-global-mcp.sh --import   # 先从 Cursor 导入再部署
 ~/Documents/code/rule/sync-global-mcp.sh            # 仅按 mcp/canonical.json 部署
 ```
 
+备份源：`mcp/canonical.json`（含 `chrome-devtools` 等）。细则：`mcp/README.md`。
 **统一 Python / Node 运行时：**
 
 ```bash

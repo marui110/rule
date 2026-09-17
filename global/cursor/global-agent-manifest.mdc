@@ -75,6 +75,55 @@ alwaysApply: true
 
 本机备份：`~/Documents/code/skill/ui-skills/`。细则：`global-ui-skills.mdc`。
 
+## Interface Skills（jakubkrehel/skills）
+
+| Skill | 用途 |
+|-------|------|
+| `better-interface` | 跨 a11y·布局·文案·字·色·UI 一次审查 |
+| `better-ui` / `better-typography` / `better-colors` | UI 细节 / 排版 / 色系统 |
+| `better-layout` / `better-accessibility` / `better-writing` | 布局 / a11y 细则 / 产品文案 |
+| `interface-review` / `break` / `variant` / `explain-interface` | 变更审查 / 压测 / 变体 / 逆向解释（用户点名） |
+
+安装：`npx skills add jakubkrehel/skills -g -y` → `~/.agents/skills/` → sync bridge → `global/`。细则：`global-ui-skills.mdc`。
+
+## MCP（跨 Agent）
+
+| 项 | 路径 |
+|----|------|
+| Canonical 备份 | `~/Documents/code/rule/mcp/canonical.json` |
+| 同步脚本 | `~/Documents/code/rule/sync-global-mcp.sh` |
+| 说明 | `~/Documents/code/rule/mcp/README.md` |
+
+部署目标：Cursor / Claude Code / Codex / VS Code Copilot。新增服务器写进 `canonical.json` 后跑同步即可（密钥走 `secrets.local.json`）。已含 `chrome-devtools`（[ChromeDevTools/chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp)）、`context-mode`（[mksglu/context-mode](https://github.com/mksglu/context-mode)）。
+
+## Context Mode（mksglu/context-mode）
+
+| Skill | 用途 |
+|-------|------|
+| `context-mode` | 大工具输出走 `ctx_execute` / 沙箱，省 context |
+| `ctx-doctor` / `ctx-stats` / `ctx-index` / `ctx-search` | 诊断 / 统计 / 索引 / 搜索（L3） |
+
+已卸：`context-mode-ops` · `ctx-insight` · `ctx-purge` · `ctx-upgrade`。MCP：`mcp/canonical.json` → `context-mode`。
+
+## Marketing Skills（coreyhaines31/marketingskills）
+
+| Skill | 用途 |
+|-------|------|
+| `product-marketing` | 新项目营销入口（ICP / 定位） |
+| `marketing-plan` / `marketing-ideas` / `marketing-loops` | 计划 / 点子 / 循环自动化 |
+| `copywriting` / `cro` / `seo-audit` | 文案 / 转化 / SEO（可自动） |
+| 短名渠道（`ads`/`image`/`launch`/…） | **L3 点名**，防工程任务误触 |
+
+安装：`npx skills add coreyhaines31/marketingskills -g -y` → bridge → `global/`。细则：`SKILL_ROUTER.md` Marketing 节。
+
+## 精简策略（2026-09）
+
+- 已卸：Remotion 全家桶、`find-skills`、context-mode 运维型 skill
+- 已卸：Matt/grill/caveman 全家桶（`ask-matt`/`implement`/`handoff`/`grilling`/`caveman*`/`cavecrew`/…）
+- 已卸：`marketing-council` · `directory-submissions`
+- UI 默认栈固定；大改版视觉 skill → L3
+- 营销短名 → L3
+
 ## 全局规则清单
 
 - `global-skills-evolution.mdc` — Skills 自进化权威源与同步
@@ -83,18 +132,16 @@ alwaysApply: true
 - `global-nextjs-saas-architecture.mdc` — 架构约束
 - `global-security-baseline.mdc` — 安全基线
 - `global-ui-conventions.mdc` — UI 交互
-- `global-ui-skills.mdc` — ibelick/ui-skills 路由（code 下全项目）
+- `global-ui-skills.mdc` — ibelick/ui-skills 路由 + jakubkrehel L2（code 下全项目）
 - `global-motion-conventions.mdc` — 动效约束
 - `global-data-patterns.mdc` — 缓存模式指针
-- `global-interaction-performance.mdc` — 交互性能（伪导航、DB 合并、乐观 UI）
-
-## 个人知识库（agent_KB）
+- `global-interaction-performance.mdc` — 交互性能（伪导航、DB 合并、乐观 UI）## 个人知识库（agent_KB）
 
 所有智能体会话均挂载同一知识库（唯一路径，无 symlink / 旧名兼容）：
 
 - 根目录：`/Users/marui/Documents/code/agent_KB`
 - 协议：`/Users/marui/Documents/code/agent_KB/AGENTS.md`（**唯一行为源**）
-- 默认可写：仅 `inbox/`；正式区（memory / playbooks / profile）需用户确认后再写
+- 默认可写：`inbox/`；**通用结论**经抽象后同轮可自动升 `memory/`；新建 playbook / profile / 项目级仍须确认
 - 业务仓：`.cursor/rules/agent_KB-pointer.mdc` + `AGENTS.md` 绑定 `projects/<repo>.md`
 - 查询：先读 `_meta/index.md`；有价值答案**回写 inbox**
 - 健康检查：触发语「体检 wiki」→ `_meta/lint` / `playbooks/wiki-lint`

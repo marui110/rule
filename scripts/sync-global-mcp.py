@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sync MCP servers from canonical config to Cursor, Claude Code, Codex."""
+"""Sync MCP servers from canonical config to Cursor, Claude Code, Codex, VS Code."""
 
 from __future__ import annotations
 
@@ -19,6 +19,14 @@ SECRETS_PATH = RULE_REPO / "mcp" / "secrets.local.json"
 CURSOR_MCP = HOME / ".cursor" / "mcp.json"
 CLAUDE_JSON = HOME / ".claude.json"
 CODEX_CONFIG = HOME / ".codex" / "config.toml"
+VSCODE_MCP = (
+    HOME
+    / "Library"
+    / "Application Support"
+    / "Code"
+    / "User"
+    / "mcp.json"
+)
 
 IMPORT_SOURCES = {
     "cursor": CURSOR_MCP,
@@ -168,6 +176,24 @@ def to_claude(server: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
+def to_vscode(server: dict[str, Any]) -> dict[str, Any]:
+    """VS Code Copilot MCP uses `servers` + explicit type."""
+    if server["transport"] == "http":
+        payload: dict[str, Any] = {
+            "type": "http",
+            "url": server["url"],
+        }
+    else:
+        payload = {
+            "type": "stdio",
+            "command": server["command"],
+            "args": server.get("args", []),
+        }
+    if server.get("env"):
+        payload["env"] = server["env"]
+    return payload
+
+
 def deploy_cursor(servers: dict[str, Any], options: dict[str, Any], version: int) -> None:
     payload = {
         "version": version,
@@ -243,6 +269,24 @@ def deploy_codex(servers: dict[str, Any]) -> None:
     print(f"deploy: codex -> {CODEX_CONFIG} ({len(servers)} server(s))")
 
 
+def deploy_vscode(servers: dict[str, Any]) -> None:
+    """Merge managed servers into VS Code Copilot mcp.json; keep local-only entries."""
+    if not VSCODE_MCP.parent.exists():
+        print(f"deploy: skip vscode (missing {VSCODE_MCP.parent})")
+        return
+
+    existing = load_json(VSCODE_MCP) if VSCODE_MCP.exists() else {}
+    current = dict(existing.get("servers") or existing.get("mcpServers") or {})
+
+    for name, server in servers.items():
+        current[name] = to_vscode(server)
+
+    payload = {k: v for k, v in existing.items() if k not in ("servers", "mcpServers")}
+    payload["servers"] = current
+    save_json(VSCODE_MCP, payload)
+    print(f"deploy: vscode -> {VSCODE_MCP} ({len(servers)} managed; {len(current)} total)")
+
+
 def apply_secrets(servers: dict[str, Any]) -> dict[str, Any]:
     secrets = load_json(SECRETS_PATH)
     if not secrets:
@@ -271,6 +315,7 @@ def deploy_all(canonical: dict[str, Any]) -> None:
     deploy_cursor(servers, options, version)
     deploy_claude(servers)
     deploy_codex(servers)
+    deploy_vscode(servers)
 
 
 def main() -> int:

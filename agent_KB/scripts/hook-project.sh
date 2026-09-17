@@ -129,7 +129,7 @@ KB_SECTION=$(cat <<EOF
 - 根目录：\`/Users/marui/Documents/code/agent_KB\`
 - 协议：\`/Users/marui/Documents/code/agent_KB/AGENTS.md\`
 - 本项目页：\`/Users/marui/Documents/code/agent_KB/projects/${REPO_NAME}.md\`
-- 写入：仅 \`inbox/\`；正式区需用户确认晋升
+- 写入：默认可写 \`inbox/\`；通用 → memory 可同轮自动晋升；新建 playbook / profile / 项目级须确认
 EOF
 )
 
@@ -147,8 +147,8 @@ alwaysApply: true
 
 - 根目录：\`/Users/marui/Documents/code/agent_KB\`
 - 本项目页：\`/Users/marui/Documents/code/agent_KB/projects/${REPO_NAME}.md\`
-- 默认可写：仅 \`inbox/\`
-- 正式区（memory / playbooks / profile）需用户确认后再晋升写入
+- 默认可写：\`inbox/\`；通用 → \`memory/\` 可同轮自动晋升
+- 新建 playbook / profile / 项目级须确认后再晋升
 - 开始任务可先读：\`profile/preferences.md\`、相关 \`playbooks/\`、本项目页
 EOF
 )
@@ -162,8 +162,8 @@ CLAUDE_BODY=$(cat <<EOF
 
 - 库根：\`/Users/marui/Documents/code/agent_KB\`
 - 本项目页：\`/Users/marui/Documents/code/agent_KB/projects/${REPO_NAME}.md\`
-- 默认可写：仅 \`inbox/\`
-- 正式区写入需用户确认晋升
+- 默认可写：\`inbox/\`；通用 → memory 可同轮自动晋升
+- 新建 playbook / profile / 项目级须确认晋升
 EOF
 )
 
@@ -262,7 +262,7 @@ updated: ${TODAY}
 ## 关键约定
 
 - 业务规则以仓库内 \`AGENTS.md\` / \`.cursor/rules\` 为准
-- 可复用结论写入知识库 \`inbox/\`，勿默认污染正式区
+- 可复用结论先写知识库 \`inbox/\`；通用则同轮自动升 \`memory/\`，勿默认新建 playbook / 改 profile
 
 ## 最近动态
 

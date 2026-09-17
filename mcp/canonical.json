@@ -17,6 +17,23 @@
         "-y",
         "firecrawl-mcp"
       ]
+    },
+    "chrome-devtools": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--no-usage-statistics"
+      ]
+    },
+    "context-mode": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "context-mode"
+      ]
     }
   }
 }

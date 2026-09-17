@@ -94,7 +94,7 @@
 
 ## Skills 路由（按意图自动匹配）
 
-命中意图时读 `~/.vscode/skills/<name>/SKILL.md`。同主题优先级：`test-driven-development`（非 `tdd`）、`design-taste-frontend`（非 `-v1`）、UI 先 `ui-skills-root`。
+命中意图时读 `~/.vscode/skills/<name>/SKILL.md`。同主题优先级：`test-driven-development`、`design-taste-frontend`；UI 先 `ui-skills-root`。
 
 | 意图 | Skill |
 |------|-------|
@@ -110,7 +110,6 @@
 | Bug 调查 | `systematic-debugging` / `debugging-and-error-recovery` |
 | 验证完成 | `verification-before-completion` |
 | 五轴审查 | `code-review-and-quality` |
-| since-point 审查 | `code-review` |
 | 简化 | `code-simplification` / `ponytail` |
 | 安全审查 | `security-and-hardening` |
 | 性能优化 | `performance-optimization` |
@@ -124,7 +123,7 @@
 | 改版 | `redesign-existing-projects` / `impeccable` |
 | Framer Motion | `framer-motion-patterns` |
 | 部署 Vercel | `deploy-to-vercel` / `vercel-post-deploy-verify` |
-| 浏览器测试 | `playwright-skill` / `webapp-testing` |
+| 浏览器测试 | `playwright-skill` / `browser-testing-with-devtools` |
 | SaaS 脚手架 | `nextjs-saas-feature-scaffold` |
 | 组件模板 | `shadcn-app-components` |
 | 预览先展示 | `preview-first-sync` |
